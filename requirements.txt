@@ -1,0 +1,13 @@
+streamlit
+pandas
+numpy
+scikit-learn
+lightgbm
+joblib
+plotly
+shap
+streamlit-shap
+rdkit-pypi
+matplotlib
+plotly>=5.18.0
+
