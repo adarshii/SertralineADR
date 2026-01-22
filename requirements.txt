@@ -7,3 +7,4 @@ joblib
 plotly
 shap
 streamlit-shap
+matplotlib
