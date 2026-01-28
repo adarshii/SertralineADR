@@ -11,7 +11,7 @@ import shap
 from streamlit_shap import st_shap
 from feature_builder import build_feature_vector
 from database import init_db, get_connection
-from fpdf import FPDF
+from fpdf2 import FPDF
 from io import BytesIO
 
 # -------------------------------------------------
