@@ -1535,4 +1535,50 @@ input::placeholder,
 textarea::placeholder {
     color: #4b5563 !important;
 }
+/* =====================================================
+   🧭 TAB VISIBILITY & CONTRAST FIX
+   ===================================================== */
+
+/* Base tab button */
+div[data-baseweb="tab"] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 600;
+    border-radius: 999px !important;
+    padding: 10px 18px !important;
+}
+
+/* Tab text */
+div[data-baseweb="tab"] span {
+    color: #000000 !important;
+}
+
+/* Tab icons (emoji / svg) */
+div[data-baseweb="tab"] svg {
+    fill: #000000 !important;
+}
+
+/* Hover state */
+div[data-baseweb="tab"]:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* ACTIVE tab */
+div[data-baseweb="tab"][aria-selected="true"] {
+    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+    color: #ffffff !important;
+}
+
+/* Active tab text */
+div[data-baseweb="tab"][aria-selected="true"] span {
+    color: #ffffff !important;
+}
+
+/* Active tab icons */
+div[data-baseweb="tab"][aria-selected="true"] svg {
+    fill: #ffffff !important;
+}
+div[data-baseweb="tab"][aria-selected="true"] {
+    box-shadow: 0 3px 0 #60a5fa;
+}
 
