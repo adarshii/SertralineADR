@@ -11,15 +11,27 @@ import shap
 from streamlit_shap import st_shap
 from feature_builder import build_feature_vector
 from database import init_db, get_connection
+from fpdf import FPDF
+from io import BytesIO
 
 # -------------------------------------------------
 # Page configuration
 # -------------------------------------------------
 st.set_page_config(
-    page_title="Sertraline ADR Risk Prediction",
+    page_title="ADR•X — Sertraline Signal Explorer",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ---- CSS loader function FIRST ----
+def load_css(file_path: str):
+    with open(file_path, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# ---- THEN load CSS ----
+load_css("styles/styles.css")
+
+# ---- THEN rest of app ----
 init_db()
 # -------------------------------------------------
 # Initialize Session State (MUST be at top)
@@ -29,234 +41,21 @@ if "signal_score" not in st.session_state:
 
 if "risk_reasons" not in st.session_state:
     st.session_state.risk_reasons = []
-
-if "prediction" not in st.session_state:
-    st.session_state.prediction = None
     
 if "model_input" not in st.session_state:
     st.session_state.model_input = None
 
-# -------------------------------------------------
-# Custom CSS (UNCHANGED)
-# -------------------------------------------------
-# -------------------------------------------------
-# Custom CSS – Enhanced dashboard look
-# -------------------------------------------------
-st.markdown("""
-<style>
-/* Global app background */
-.stApp {
-    background: radial-gradient(circle at top left, #0f172a 0, #020617 55%, #000000 100%);
-    color: #e5e7eb;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    padding-top: 4.5rem;
-}
+if "conf_label" not in st.session_state:
+    st.session_state.conf_label = "Not computed"
 
-/* Top hero header */
-.app-hero {
-    padding: 22px 30px;
-    margin: 0 0 14px 0;
-    position: relative;
-    z-index: 10;
-}
-.app-title-main {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
-    color: #f8fafc;
-}
-.app-hero-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-.app-hero {
-    padding: 26px 36px;
-}
-.app-logo {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: radial-gradient(circle at 20% 20%, #38bdf8 0, #0ea5e9 40%, #6366f1 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-}
-.app-title-main {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-}
-.app-title-sub {
-    font-size: 12px;
-    color: #9ca3af;
-}
-.hero-badge {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    border: 1px solid rgba(148, 163, 184, 0.6);
-    color: #e5e7eb;
-}
+if "shap_vals" not in st.session_state:
+    st.session_state.shap_vals = None
 
-/* Glassmorphism cards */
-.glass-card {
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.80), rgba(15, 23, 42, 0.35));
-    border-radius: 18px;
-    padding: 18px 20px;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(16px);
-}
+if "explanations" not in st.session_state:
+    st.session_state.explanations = []
 
-/* Override Streamlit block containers to be transparent */
-.block-container {
-    padding-top: 0.8rem;
-}
-
-/* Sidebar styling */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #020617 0%, #020617 45%, #020617 100%);
-    border-right: 1px solid rgba(148, 163, 184, 0.4);
-}
-section[data-testid="stSidebar"] .css-1d391kg, 
-section[data-testid="stSidebar"] .block-container {
-    padding-top: 0.5rem;
-}
-.sidebar-title {
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    font-size: 13px;
-    text-transform: uppercase;
-    color: #9ca3af;
-    margin-bottom: 6px;
-}
-
-/* Risk banner refinements */
-.risk-banner {
-    padding: 18px 18px;
-    border-radius: 16px;
-    font-weight: 600;
-    margin: 10px 0 16px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(15, 23, 42, 0.7);
-}
-.risk-label-main {
-    font-size: 16px;
-}
-.risk-prob-chip {
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    background: rgba(15, 23, 42, 0.74);
-}
-
-/* Risk colors */
-.risk-high {
-    background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.18), rgba(127, 29, 29, 0.85));
-    border-left: 5px solid #f97373;
-    color: #fee2e2;
-}
-.risk-moderate {
-    background: radial-gradient(circle at top left, rgba(251, 191, 36, 0.15), rgba(113, 63, 18, 0.85));
-    border-left: 5px solid #facc15;
-    color: #fef9c3;
-}
-.risk-low {
-    background: radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), rgba(6, 95, 70, 0.85));
-    border-left: 5px solid #34d399;
-    color: #dcfce7;
-}
-
-/* Omics cards */
-.pathway-card {
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(148, 163, 184, 0.45);
-    margin: 8px 0;
-}
-.omics-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
-    margin-top: 6px;
-}
-.omics-up {
-    background: rgba(22, 163, 74, 0.15);
-    color: #bbf7d0;
-    border: 1px solid rgba(34, 197, 94, 0.55);
-}
-.omics-down {
-    background: rgba(220, 38, 38, 0.15);
-    color: #fecaca;
-    border: 1px solid rgba(248, 113, 113, 0.55);
-}
-
-/* Primary button styling */
-div.stButton > button {
-    border-radius: 999px;
-    border: 1px solid rgba(56, 189, 248, 0.6);
-    background: linear-gradient(120deg, #0ea5e9, #22c55e);
-    color: white;
-    padding: 0.5rem 1.3rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
-    transition: all 0.18s ease;
-}
-div.stButton > button:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-    box-shadow: 0 14px 30px rgba(56, 189, 248, 0.55);
-}
-
-/* Metric cards */
-[data-testid="stMetric"] {
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 64, 175, 0.65));
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(129, 140, 248, 0.5);
-    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.85);
-}
-[data-testid="stMetric"] > div {
-    color: #e5e7eb;
-}
-
-/* Tabs styling */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 8px;
-}
-.stTabs [data-baseweb="tab"] {
-    background-color: rgba(15, 23, 42, 0.72);
-    border-radius: 999px;
-    padding: 8px 16px;
-    font-size: 13px;
-    color: #9ca3af;
-    border: 1px solid transparent;
-}
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(120deg, #38bdf8, #6366f1);
-    color: white !important;
-    border: 1px solid rgba(191, 219, 254, 0.7);
-}
-
-/* Small fade-in animation for main content */
-.main-fade {
-    animation: fadeInUp 0.4s ease-out;
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
-""", unsafe_allow_html=True)
+if "signal_percent" not in st.session_state:
+    st.session_state.signal_percent = None
 
 # -------------------------------------------------
 # Load trained model
@@ -292,9 +91,15 @@ def load_omics():
 
 omics_df = load_omics()
 
+@st.cache_resource
+def load_shap_explainer(_model):
+    return shap.TreeExplainer(_model)
+explainer = load_shap_explainer(model)
+
 # -------------------------------------------------
 # Helper functions (UNCHANGED)
 # -------------------------------------------------
+
 def get_pharmacogene_info(probability):
     return {
         "CYP2C19": {
@@ -420,7 +225,6 @@ def get_risk_category(score):
         return "Low Priority Signal", "🟢", "risk-low"
 
 def get_organ_specific_risks(probability):
-    base = np.zeros(6)
     return {
         "CNS": max(0, min(1, probability + 0.15)),
         "Cardiac": max(0, min(1, probability - 0.20)),
@@ -485,6 +289,416 @@ def generate_adr_timeline(risk_score):
     
     return days, gi_risk, cns_risk
 
+def shap_to_natural_language(
+    shap_values,
+    feature_names,
+    feature_values,
+    top_k: int = 6
+):
+    """
+    Convert SHAP values into a conservative, scientific
+    natural language explanation.
+    """
+    import numpy as np
+
+    shap_vals = shap_values.flatten()
+    abs_shap = np.abs(shap_vals)
+
+    # Top contributing features
+    top_idx = np.argsort(abs_shap)[::-1][:top_k]
+
+    explanations = []
+
+    for idx in top_idx:
+        fname = feature_names[idx]
+        sval = shap_vals[idx]
+        fval = feature_values[idx]
+
+        direction = "increases" if sval > 0 else "reduces"
+
+        # Conservative phrasing
+        explanations.append(
+            f"• {fname.replace('_', ' ')} ({fval}) {direction} the predicted ADR risk"
+        )
+
+    return explanations
+
+def pdf_safe(text: str) -> str:
+    """
+    Convert Unicode text to Latin-1 safe text for FPDF.
+    """
+    replacements = {
+        "•": "-",
+        "→": "->",
+        "↑": "up",
+        "↓": "down",
+        "≤": "<=",
+        "≥": ">=",
+        "–": "-",
+        "—": "-",
+        "’": "'",
+        "“": '"',
+        "”": '"',
+        "⚠️": "WARNING:",
+        "🔴": "[HIGH]",
+        "🟠": "[MODERATE]",
+        "🟢": "[LOW]"
+    }
+
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+
+    return text.encode("latin-1", "ignore").decode("latin-1")
+
+
+def get_system_prompt(role):
+    if "Clinician" in role:
+        return """
+        You are an AI clinical decision-support assistant.
+        Explain results clearly and conservatively.
+        Avoid technical jargon unless necessary.
+        Do NOT give diagnoses or treatment recommendations.
+        """
+    else:
+        return """
+        You are an AI research assistant for pharmacovigilance.
+        Provide technical explanations of model behavior,
+        feature contributions, SHAP values, and uncertainty.
+        Do NOT provide clinical decisions.
+        """
+def run_ai_chat(system_prompt, context, question):
+    q = question.lower()
+
+    if "confidence" in q:
+        return (
+            "Model confidence reflects how far the predicted ADR risk "
+            "is from the decision threshold. Higher confidence indicates "
+            "greater consistency in model signals."
+        )
+
+    if "why" in q or "reason" in q:
+        return (
+            "The predicted ADR risk is influenced by dose, age, "
+            "polypharmacy, and omics-derived biological signals "
+            "such as inflammation and transporter activity."
+        )
+
+    if "omics" in q:
+        return (
+            "Omics features modify baseline ADR risk by capturing "
+            "biological states such as inflammation, metabolism, "
+            "and protein target availability."
+        )
+
+    return (
+        "This assistant explains model outputs and biological context. "
+        "Please ask about risk, confidence, omics, or interpretation."
+    )
+
+SUGGESTED_QUESTIONS = {
+    "Clinician": [
+        "What does this prediction mean for my patient?",
+        "How confident is the model?",
+        "Which side effects should I monitor first?",
+        "Is this risk considered high or moderate?"
+    ],
+    "Researcher": [
+        "How is the ADR signal score calculated?",
+        "Which features contributed most to this prediction?",
+        "How should I interpret the SHAP plot?",
+        "What are the limitations of this model?"
+    ]
+}
+
+
+GRAPH_REGISTRY = {
+    "ADR Signal Strength": {
+        "type": "metric",
+        "meaning": (
+            "Represents the relative strength of the predicted adverse drug reaction signal. "
+            "Higher values indicate stronger pharmacovigilance concern."
+        ),
+        "interpretation": {
+            "low": "Risk comparable to general population",
+            "moderate": "Clinically relevant ADR risk",
+            "high": "Strong ADR signal requiring vigilance"
+        }
+    },
+
+    "Organ Risk Radar": {
+        "type": "radar",
+        "meaning": (
+            "Shows how ADR risk is distributed across physiological systems "
+            "such as CNS, GI, hepatic, cardiac, and immune systems."
+        ),
+        "interpretation": (
+            "Larger area toward a system indicates higher relative susceptibility "
+            "to ADRs affecting that organ."
+        )
+    },
+
+    "ADR Timeline": {
+        "type": "line",
+        "meaning": (
+            "Shows expected temporal pattern of ADR development after starting sertraline."
+        ),
+        "interpretation": (
+            "Early peaks suggest acute ADRs, while delayed rises suggest late-onset effects."
+        )
+    },
+
+    "SHAP Explanation": {
+        "type": "explainability",
+        "meaning": (
+            "Explains which features contributed most to this prediction."
+        ),
+        "interpretation": (
+            "Features pushing right increase ADR risk, left reduce risk."
+        )
+    }
+}
+FEATURE_REGISTRY = {
+    "Age": "Older age increases ADR risk due to reduced clearance and CNS sensitivity.",
+    "Dose": "Higher sertraline dose increases serotonergic and GI ADR risk.",
+    "Polypharmacy": "Multiple drugs increase interaction-related ADRs.",
+    "Liver Disease": "Impaired hepatic clearance increases systemic exposure.",
+    "Neuroinflammation": "Elevated neuroinflammation increases CNS ADR susceptibility.",
+    "SERT Expression": "Higher transporter availability increases serotonergic effects."
+}
+
+def build_chat_context():
+    if st.session_state.signal_score is None:
+        return None
+
+    return {
+        "risk_score": st.session_state.signal_score,
+        "risk_percent": st.session_state.signal_percent,
+        "risk_category": get_risk_category(st.session_state.signal_score)[0],
+        "confidence": st.session_state.conf_label,
+        "risk_reasons": st.session_state.risk_reasons,
+        "shap_explanations": st.session_state.explanations,
+        "graphs": GRAPH_REGISTRY,
+        "features": FEATURE_REGISTRY
+    }
+
+def detect_intent(question: str):
+    q = question.lower().strip()
+
+    # Risk & prediction meaning
+    if any(k in q for k in ["prediction", "result", "what does", "meaning"]):
+        return "risk"
+
+    # Confidence & certainty
+    if any(k in q for k in ["confidence", "sure", "certainty", "how sure"]):
+        return "confidence"
+
+    # Features & SHAP
+    if any(k in q for k in ["feature", "shap", "why", "contribute"]):
+        return "feature"
+
+    # Graphs & plots
+    if any(k in q for k in ["graph", "plot", "chart", "radar", "timeline"]):
+        return "graph"
+    if any(k in q for k in ["signal", "score", "calculated"]):
+        return "signal"
+
+    return "general"
+
+def detect_graph_reference(question: str):
+    q = question.lower()
+
+    if "radar" in q or "organ" in q:
+        return "Organ Risk Radar"
+    if "timeline" in q or "time" in q:
+        return "ADR Timeline"
+    if "shap" in q:
+        return "SHAP Explanation"
+    if "signal" in q or "strength" in q:
+        return "ADR Signal Strength"
+
+    return None
+
+def explain_with_context(context, question):
+    intent = detect_intent(question)
+
+    # ---------------- RISK ----------------
+    if intent == "risk":
+        return (
+            f"The model predicts an ADR signal strength of "
+            f"{context['risk_percent']}%, classified as "
+            f"{context['risk_category']}. "
+            "This represents relative pharmacovigilance risk, "
+            "not a certainty that side effects will occur."
+        )
+
+    # ---------------- CONFIDENCE ----------------
+    if intent == "confidence":
+        return (
+            f"The model confidence is **{context['confidence']}**. "
+            "Confidence reflects how far the prediction is from the "
+            "decision threshold (0.5). Higher confidence means "
+            "stronger and more consistent model support."
+        )
+
+    # ---------------- SIGNAL SCORE ----------------
+    if intent == "signal":
+        return (
+            "The ADR signal score is the predicted probability "
+            "generated by the machine-learning model after integrating "
+            "clinical, pharmacological, and omics features."
+        )
+
+    # ---------------- FEATURES / SHAP ----------------
+    if intent == "feature":
+        explanation = "Key contributors to this prediction:\n\n"
+        for r in context["risk_reasons"]:
+            explanation += f"- {r}\n"
+
+        explanation += "\nFeature context:\n"
+        for fname, fdesc in context["features"].items():
+            explanation += f"- {fname}: {fdesc}\n"
+
+        return explanation
+
+    # ---------------- GRAPHS ----------------
+    if intent == "graph":
+        graph_name = detect_graph_reference(question)
+
+        if graph_name and graph_name in context["graphs"]:
+            g = context["graphs"][graph_name]
+
+            text = f"**{graph_name}**\n\n"
+            text += g["meaning"] + "\n\n"
+
+            if isinstance(g["interpretation"], dict):
+                for k, v in g["interpretation"].items():
+                    text += f"- {k.capitalize()}: {v}\n"
+            else:
+                text += g["interpretation"]
+
+            return text
+
+        return (
+            "This visualization summarizes aspects of ADR risk. "
+            "You can ask specifically about the radar plot, timeline, "
+            "SHAP explanation, or signal strength."
+        )
+
+    # ---------------- FALLBACK ----------------
+    return (
+        "I can explain the prediction, confidence, features, SHAP plots, "
+        "and risk visualizations. Try asking about one of these."
+    )
+
+
+
+def generate_pdf_report(
+    patient_info: dict,
+    risk_score: float,
+    risk_category: str,
+    explanations: list,
+    confidence_label: str
+):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "Sertraline ADR Risk Assessment Report", ln=True)
+
+    pdf.ln(4)
+    pdf.set_font("Arial", "", 11)
+    pdf.cell(0, 8, "Generated by AI-based Pharmacovigilance System", ln=True)
+
+    pdf.ln(6)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 10, "Patient Summary", ln=True)
+
+    pdf.set_font("Arial", "", 11)
+    for k, v in patient_info.items():
+        pdf.cell(0, 8, f"{k}: {v}", ln=True)
+
+    pdf.ln(4)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 10, "ADR Risk Prediction", ln=True)
+
+    pdf.set_font("Arial", "", 11)
+    pdf.cell(0, 8, f"Risk Score: {risk_score:.3f}", ln=True)
+    pdf.cell(0, 8, f"Risk Category: {risk_category}", ln=True)
+
+    pdf.ln(4)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 10, "Model Explanation (SHAP-based)", ln=True)
+
+    pdf.set_font("Arial", "", 11)
+    for exp in explanations:
+        pdf.multi_cell(0, 7, pdf_safe(exp))
+
+    pdf.ln(2)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 10, "Model Confidence", ln=True)
+
+    pdf.set_font("Arial", "", 11)
+    pdf.multi_cell(0, 7, pdf_safe(confidence_label))
+    for k, v in patient_info.items():
+        pdf.cell(0, 8, pdf_safe(f"{k}: {v}"), ln=True)
+    pdf.ln(4)
+    pdf.set_font("Arial", "I", 9)
+    pdf.multi_cell(
+        0,
+        6,
+        "Disclaimer: This report is generated for research and decision-support "
+        "purposes only. Predictions reflect model behavior and are not clinical diagnoses."
+    )
+
+    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+    buffer = BytesIO(pdf_bytes)
+    return buffer
+
+def tooltip(label, explanation):
+    st.markdown(
+        f"""
+        <span style="position: relative; cursor: help; font-weight:600;">
+            {label}
+            <span style="
+                visibility: hidden;
+                background: rgba(15,23,42,0.95);
+                color: #f8fafc;
+                padding: 8px 10px;
+                border-radius: 8px;
+                position: absolute;
+                z-index: 10;
+                width: 260px;
+                bottom: 120%;
+                left: 0;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            " class="tooltip-text">
+                {explanation}
+            </span>
+        </span>
+
+        <script>
+        const el = document.currentScript.previousElementSibling;
+        el.onmouseenter = () => el.querySelector(".tooltip-text").style.visibility = "visible";
+        el.onmouseleave = () => el.querySelector(".tooltip-text").style.visibility = "hidden";
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+def explain_percentage_risk(percent):
+    if percent < 30:
+        return "Low ADR signal. Risk comparable to general population. Standard monitoring is sufficient."
+    elif percent < 50:
+        return "Mild to moderate ADR signal. Side effects are possible but usually manageable with monitoring."
+    elif percent < 70:
+        return "Moderate ADR signal. Clinically relevant risk. Close monitoring and dose optimization advised."
+    elif percent < 85:
+        return "High ADR signal. Strong risk indicators detected. Enhanced vigilance recommended."
+    else:
+        return "Very high ADR signal. Priority pharmacovigilance concern. Consider alternative strategies."
+
 # -------------------------------------------------
 # Title & disclaimer (UNCHANGED)
 # -------------------------------------------------
@@ -497,7 +711,7 @@ st.markdown(
         <div class="app-hero-left">
             <div class="app-logo">💊</div>
             <div>
-                <div class="app-title-main">Sertraline ADR Risk Studio</div>
+                <div class="app-title-main">ADR•X — Sertraline Signal Explorer</div>
                 <div class="app-title-sub">
                     Multi-omics clinical decision support · research only
                 </div>
@@ -534,6 +748,41 @@ components.html(
     """,
     height=0,
 )
+components.html(
+    """
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <script>
+        const glow = document.getElementById("cursorGlow");
+        window.addEventListener("mousemove", (e) => {
+            glow.style.transform = 
+                `translate(${e.clientX}px, ${e.clientY}px)`;
+        });
+    </script>
+    """,
+    height=0,
+)
+components.html(
+    """
+    <script>
+    const revealElements = () => {
+        const elements = document.querySelectorAll(".reveal");
+        const triggerBottom = window.innerHeight * 0.9;
+
+        elements.forEach(el => {
+            const boxTop = el.getBoundingClientRect().top;
+            if (boxTop < triggerBottom) {
+                el.classList.add("active");
+            }
+        });
+    };
+
+    window.addEventListener("scroll", revealElements);
+    revealElements();
+    </script>
+    """,
+    height=0,
+)
+
 st.info("""
 ### 🧭 How to use this tool
 
@@ -548,6 +797,23 @@ st.info("""
 📌 This tool is for **research & decision support**, not diagnosis.
 """)
 
+if st.session_state.signal_percent is not None:
+    st.info(
+        f"""
+        **What does {st.session_state.signal_percent}% mean?**
+
+        {explain_percentage_risk(st.session_state.signal_percent)}
+
+        🔬 This percentage reflects **relative ADR signal strength**,  
+        not a guarantee that side effects will occur.
+        """
+    )
+else:
+    st.info(
+        "Click **🚀 Predict ADR Risk** to generate a percentage-based explanation."
+    )
+
+
 
 # -------------------------------------------------
 # Sidebar (UNCHANGED)
@@ -558,17 +824,17 @@ user_role = st.sidebar.radio(
     "Select your role:",
     ["Clinician (Brief View)", "Researcher (Detailed)", "Pharmacovigilance Analyst"]
 )
+
 show_model_explanation = st.sidebar.checkbox("Show model explanation", value=True)
 show_raw_values = st.sidebar.checkbox("Show raw omics values", value=False)
-st.sidebar.markdown("### 🧑 Patient Details")
-
-age = st.sidebar.number_input("Age (years)", 18, 90, 35)
-sex = st.sidebar.selectbox("Sex", ["Female", "Male", "Other"])
-weight = st.sidebar.number_input("Weight (kg)", 30, 150, 60)
-dose = st.sidebar.selectbox("Sertraline Dose (mg/day)", [25, 50, 100, 150])
-polypharmacy = st.sidebar.checkbox("On ≥3 concomitant drugs")
-liver_disease = st.sidebar.checkbox("Known liver disease")
-elderly = age >= 65
+with st.sidebar.expander("🧑 Patient Details", expanded=True):
+    age = st.number_input("Age (years)", 18, 90, 35)
+    sex = st.selectbox("Sex", ["Female", "Male", "Other"])
+    weight = st.number_input("Weight (kg)", 30, 150, 60)
+    dose = st.sidebar.selectbox("Sertraline Dose (mg/day)", [25, 50, 100, 150])
+    polypharmacy = st.sidebar.checkbox("On ≥3 concomitant drugs")
+    liver_disease = st.sidebar.checkbox("Known liver disease")
+    elderly = age >= 65
 
 st.sidebar.info(f"""
 **Model:** LightGBM  
@@ -594,38 +860,34 @@ else:
 
 st.sidebar.markdown("### 🧬 Patient Omics (Optional)")
 # -------- PROTEOMICS --------
-st.sidebar.markdown("#### 🧫 Proteomics")
+with st.sidebar.expander("🧫 Proteomics"):
+    sert_protein = st.selectbox(
+        "SERT Protein Availability",
+        ["Low", "Normal", "High"],
+        index=1
+    )
 
-sert_protein = st.sidebar.selectbox(
-    "SERT Protein Availability",
-    ["Low", "Normal", "High"],
-    index=1
-)
-
-p_gp_activity = st.sidebar.selectbox(
-    "P-glycoprotein (ABCB1) Activity",
-    ["Low", "Normal", "High"],
-    index=1
-)
+    p_gp_activity = st.selectbox(
+        "P-glycoprotein (ABCB1) Activity",
+        ["Low", "Normal", "High"],
+        index=1
+    )
 
 # -------- MICROBIOME --------
-st.sidebar.markdown("#### 🦠 Gut Microbiome")
+with st.sidebar.expander("🦠 Gut Microbiome"):
+    gut_microbiome = st.selectbox(
+        "Gut Microbiome Balance",
+        ["Healthy", "Moderate Dysbiosis", "Severe Dysbiosis"],
+        index=0
+    )
 
-gut_microbiome = st.sidebar.selectbox(
-    "Gut Microbiome Balance",
-    ["Healthy", "Moderate Dysbiosis", "Severe Dysbiosis"],
-    index=0
-)
 
 # -------- EPIGENOMICS --------
-st.sidebar.markdown("#### 🧬 Epigenomics")
-
-epigenetic_silencing = st.sidebar.slider(
-    "Epigenetic Silencing Index",
-    0.0, 1.0, 0.3
-)
-
-
+with st.sidebar.expander("🧬 Epigenomics"):
+    epigenetic_silencing = st.slider(
+        "Epigenetic Silencing Index",
+        0.0, 1.0, 0.3
+    )
 # -------- OMICS INPUTS --------
 neuroinflammation = st.sidebar.slider(
     "Neuroinflammation",
@@ -665,12 +927,40 @@ sert_expression = st.sidebar.selectbox(
     ["Low", "Normal", "High"],
     index=1
 )
+st.sidebar.markdown("### 🎨 Appearance")
+
+theme = st.sidebar.radio(
+    "Theme mode",
+    ["🌙 Dark (Research)", "☀️ Light (Publication)"],
+    index=0
+)
+
+theme_value = "dark" if "Dark" in theme else "light"
+
+components.html(
+    f"""
+    <script>
+        document.documentElement.setAttribute(
+            "data-theme", "{theme_value}"
+        );
+    </script>
+    """,
+    height=0,
+)
+
+pdf_mode = st.sidebar.checkbox("📄 Publication / PDF Mode")
+if pdf_mode:
+    components.html("""
+        <script>
+            document.documentElement.setAttribute("data-export","pdf");
+        </script>
+    """, height=0)
 
 
 # -------------------------------------------------
 # Tabs (UNCHANGED)
 # -------------------------------------------------
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "📊 Risk Overview",
     "🧬 Genomics",
     "🔬 Omics Features",
@@ -678,9 +968,9 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📈 Performance & SHAP",
     "🔍 Model Explanation",
     "📖 Background",
-    "🗂️ Prediction History"
+    "🗂 Prediction History",
+    "🤖 AI Clinical Assistant"
 ])
-
 
 # =================================================
 # TAB 1 — RISK OVERVIEW (FIXED & CORRECT)
@@ -715,6 +1005,14 @@ with tab1:
         # ------------------------------------
         base_prob = float(
             model.predict(st.session_state.model_input)[0])
+        # ------------------------------------
+        # SHAP computation (POST prediction)
+        # ------------------------------------
+        try:
+            shap_vals = explainer.shap_values(st.session_state.model_input)
+            st.session_state.shap_vals = shap_vals
+        except Exception as e:
+            st.session_state.shap_vals = None
         final_prob, reasons = apply_patient_risk_adjustment(
         base_prob=base_prob,
         age=age,
@@ -747,7 +1045,21 @@ with tab1:
 
         confidence = abs(signal_score - 0.5) * 2
 
-        conn = get_connection()
+        if confidence > 0.6:
+            conf_label = "High confidence"
+        elif confidence > 0.3:
+            conf_label = "Moderate confidence"
+        else:
+            conf_label = "Low confidence"
+
+        st.session_state.conf_label = conf_label
+
+        try:
+            conn = get_connection()
+        except Exception as e:
+            st.error("Database unavailable.")
+            st.stop()
+
         conn.execute("""
         INSERT INTO predictions 
         (age, sex, dose, polypharmacy, liver_disease,
@@ -774,11 +1086,43 @@ with tab1:
 
         # Store in session
         st.session_state.signal_score = signal_score
-        st.session_state.prediction = signal_score
         st.session_state.risk_reasons = reasons
 
         # Interpret signal
         risk_label, risk_icon, risk_class = get_risk_category(signal_score)
+        components.html(
+                              f"""
+                              <script>
+                                         document.documentElement.setAttribute(
+                                                   "data-risk", "{risk_class}"
+                                         );
+                              </script>
+                              """,
+                              height=0,
+                     )
+
+        # ------------------------------------
+        # SHAP → Natural language explanation
+        # ------------------------------------
+        if st.session_state.shap_vals is not None:
+            shap_values = (
+                st.session_state.shap_vals[1]
+                if isinstance(st.session_state.shap_vals, list)
+                else st.session_state.shap_vals
+            )
+
+            explanations = shap_to_natural_language(
+                shap_values=shap_values,
+                feature_names=EXPECTED_FEATURES,
+                feature_values=st.session_state.model_input.iloc[0].values,
+                top_k=6    
+            )
+        else:
+            explanations = [
+                "• SHAP explanation unavailable for this prediction."
+                ]
+        st.session_state.explanations = explanations
+
         
         st.subheader("🩺 Clinical Interpretation Summary")
 
@@ -796,24 +1140,52 @@ with tab1:
                 "Low ADR risk detected. Standard monitoring is likely sufficient."
                 )
 
-        st.write("DEBUG — base vs final probability")
-        st.write({"base_prob": base_prob, "final_prob": signal_score})
+        if st.sidebar.checkbox("🛠 Debug mode"):
+            st.write({"base_prob": base_prob, "final_prob": signal_score})
+        st.session_state.signal_percent = round(signal_score * 100, 1)
+
         # Confidence proxy based on distance from 0.5
-        confidence = abs(signal_score - 0.5) * 2  # 0–1 scale
-        confidence_label = (
-            "High confidence" if confidence > 0.6 else
-            "Moderate confidence" if confidence > 0.3 else
-            "Low confidence")
-        st.metric(
-            label="Prediction Confidence",
-            value=f"{confidence_label}",
-            delta=f"{confidence:.2f}")
+        st.metric(label="Prediction Confidence",value=st.session_state.conf_label,delta=f"{confidence:.2f}")
+
         st.metric("GI ADR Risk", f"{risk_profiles['GI_ADR_Risk']:.2f}")
         st.metric("CNS ADR Risk", f"{risk_profiles['CNS_ADR_Risk']:.2f}")
         st.metric("Sexual ADR Risk", f"{risk_profiles['Sexual_ADR_Risk']:.2f}")
         st.metric("Serious ADR Risk", f"{risk_profiles['Serious_ADR_Risk']:.2f}")
-
+        tooltip(
+            "📊 ADR Signal Strength",
+            "Represents the relative strength of the predicted adverse drug reaction signal. "
+            "Higher values indicate stronger pharmacovigilance concern."
+        )
+        st.metric(label="",value=f"{st.session_state.signal_percent}%")
         st.metric("Expected ADR Onset", estimate_adr_timeline(signal_score))
+        st.markdown("### 📄 Export Report")
+
+        if st.session_state.signal_score is not None:
+            patient_info = {
+                "Age": age,
+                "Sex": sex,
+                "Dose (mg/day)": dose,
+                "Polypharmacy": polypharmacy,
+                "Liver disease": liver_disease
+                }
+
+            pdf_buffer = generate_pdf_report(
+                patient_info=patient_info,
+                risk_score=st.session_state.signal_score,
+                risk_category=get_risk_category(st.session_state.signal_score)[0],
+                explanations=st.session_state.explanations,
+                confidence_label=st.session_state.conf_label
+            )
+
+            st.download_button(
+                label="⬇️ Download PDF Report",
+                data=pdf_buffer,
+                file_name="sertraline_adr_risk_report.pdf",
+                mime="application/pdf"
+            )
+            
+
+
 
 
         st.caption(
@@ -884,7 +1256,13 @@ with tab1:
             template="plotly_dark"
         )
 
+        st.markdown('<div id="timeline-plot">', unsafe_allow_html=True)
         st.plotly_chart(timeline_fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("🧠 Explain this graph", key="explain_timeline"):
+            st.session_state.chat_input_prefill = "Explain the ADR timeline plot"
+            st.session_state.highlight_graph = "timeline-plot"
+
 
         st.markdown("### ⏱️ Expected ADR Timeline")
         st.info(adr_timeline)
@@ -907,8 +1285,34 @@ with tab1:
         for item in risk_advice:
             st.write("•", item)
         
+        st.markdown("### 📈 Signal Evolution Timeline")
 
+        risk_level = get_risk_category(st.session_state.signal_score)[2]
 
+        st.markdown('<div class="risk-timeline reveal">', unsafe_allow_html=True)
+
+        levels = ["low", "moderate", "high"]
+        for lvl in levels:
+            active = False
+            if risk_level == "risk-low" and lvl == "low":
+                active = True
+            if risk_level == "risk-moderate" and lvl in ["low", "moderate"]:
+                active = True
+            if risk_level == "risk-high":
+                active = True
+
+            cls = f"risk-node active-{lvl}" if active else "risk-node"
+            st.markdown(f'<div class="{cls}"></div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="timeline-labels">
+            <span>Baseline</span>
+            <span>Exposure</span>
+            <span>Signal</span>
+        </div>
+        """, unsafe_allow_html=True)
 
         # ------------------------------------
         # Organ-specific risk radar
@@ -926,8 +1330,14 @@ with tab1:
             polar=dict(radialaxis=dict(range=[0, 1])),
             showlegend=False
         )
-
+        st.markdown('<div id="organ-risk-graph">', unsafe_allow_html=True)
+        # your radar plot code here
         st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("🧠 Explain this graph", key="explain_organ_risk"):
+                             st.session_state.chat_input_prefill = "Explain the organ risk radar plot"
+                             st.session_state.highlight_graph = "organ-risk-graph"
+   
         if eli12:
             st.info(
                 "Each point shows how sensitive a body system may be. "
@@ -950,10 +1360,10 @@ with tab1:
            
 
         st.caption("Radar plot shows relative organ-system susceptibility based on predicted ADR signal.")
-        if st.session_state.prediction is not None:
+        if st.session_state.signal_score is not None:
             st.write("Model input preview:")
             st.dataframe(st.session_state.model_input.iloc[:, :10])
-
+        
         # ------------------------------------
         # Dose–Risk Relationship
         # ------------------------------------
@@ -994,7 +1404,25 @@ with tab1:
         st.caption(
             "This curve illustrates how ADR risk is expected to change with dose escalation, "
             "holding all other patient factors constant.")
-
+        
+        if show_model_explanation and st.session_state.signal_score is not None:
+            st.markdown(
+                """
+                <div class="ai-panel">
+                    <div class="ai-title">🧠 Model Reasoning Summary</div>
+                    <div class="ai-subtitle">
+                        Interpretable explanation based on learned feature contributions
+                    </div>
+                    <div class="ai-point">• Signal driven by dose intensity and polypharmacy</div>
+                    <div class="ai-point">• Age-related pharmacokinetic sensitivity detected</div>
+                    <div class="ai-point">• Proteomic SERT elevation contributes to serotonergic risk</div>
+                    <div class="ai-point">• P-gp activity modulates CNS exposure</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            with tab1:
+                st.session_state.active_tab = "Risk Overview"
 
 # =================================================
 # REMAINING TABS
@@ -1015,7 +1443,11 @@ with tab2:
     """)
     
     try:
-        probability = st.session_state.get("prediction", 0.5)
+        probability = (
+            st.session_state.signal_score
+            if st.session_state.signal_score is not None
+            else 0.5
+            )
     except:
         probability = 0.5
     
@@ -1349,9 +1781,10 @@ with tab4:
     st.subheader("📊 Real-World Signal Comparison")
     
     probability = (
-    st.session_state.prediction
-    if st.session_state.prediction is not None
+    st.session_state.signal_score
+    if st.session_state.signal_score is not None
     else 0.5)
+
 
     
     # Simulate real-world cohort comparison
@@ -1392,6 +1825,7 @@ with tab4:
         Consider dose optimization and adjunctive management strategies (e.g., take with food, schedule dosing timing).
         """
     )
+
 # =================================================
 # TAB 5 — PERFORMANCE & EXPLAINABILITY (FIXED)
 # =================================================
@@ -1401,7 +1835,7 @@ with tab5:
     # -------------------------------------------------
     # SAFETY CHECK: prediction must exist
     # -------------------------------------------------
-    if "model_input" not in locals() and st.session_state.signal_score is None:
+    if st.session_state.model_input is None:
         st.info("Run a prediction in the **📊 Risk Overview** tab first.")
         st.stop()
 
@@ -1482,12 +1916,7 @@ with tab5:
         if len(EXPECTED_FEATURES) > 500:
             st.warning("SHAP disabled due to very large feature space.")
         else:
-            explainer = shap.TreeExplainer(model)
-
-            shap_exp = explainer(
-                st.session_state.model_input,
-                check_additivity=False
-            )
+            shap_exp = explainer(st.session_state.model_input,check_additivity=False)
             st.info("""
             ### 🔍 How to Read SHAP Explanations
 
@@ -1509,8 +1938,27 @@ with tab5:
                 shap.plots.waterfall(shap_exp[0], max_display=15),
                 height=400
             )
+            if show_model_explanation and st.session_state.model_input is not None:
+                shap_values = (st.session_state.shap_vals[1]if isinstance(st.session_state.shap_vals, list)else st.session_state.shap_vals)
+                for line in st.session_state.explanations:
+                    st.markdown(f"<div class='ai-point'>{line}</div>", unsafe_allow_html=True)
 
-            
+
+                st.markdown(
+                    """
+                    <div class="ai-panel reveal">
+                        <div class="ai-title">🧠 Model Explanation (SHAP-derived)</div>
+                        <div class="ai-subtitle">
+                            Automatically generated interpretation of the strongest contributing factors
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                st.markdown("</div>", unsafe_allow_html=True)
+            with tab5:
+                st.session_state.active_tab = "SHAP"
+
 # =================================================
 # TAB 6 — MODEL EXPLANATION & TRANSPARENCY
 # =================================================
@@ -1793,6 +2241,80 @@ with tab8:
             int((history_df["adr_score"] >= 0.8).sum())
         )
 
+with tab9:
+    st.subheader("🤖 AI Clinical & Research Assistant")
+
+    st.info(
+        "Ask questions about the prediction, risk interpretation, "
+        "omics influence, or model behavior."
+    )
+
+    context = build_chat_context()
+    if context is None:
+        st.info("Run a prediction first so I can explain the results.")
+        st.stop()
+
+    context["active_tab"] = st.session_state.get("active_tab", "Unknown")
+
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    role_key = "Clinician" if "Clinician" in user_role else "Researcher"
+
+    st.markdown("**💡 Suggested questions**")
+    cols = st.columns(2)
+    for i, q in enumerate(SUGGESTED_QUESTIONS[role_key]):
+        if cols[i % 2].button(q, key=f"suggested_{i}"):
+            st.session_state.chat_input_prefill = q
+
+    user_question = st.chat_input("Ask your question here...")
+
+    if "chat_input_prefill" in st.session_state:
+        user_question = st.session_state.pop("chat_input_prefill")
+
+    if user_question:
+        response = explain_with_context(context, user_question)
+        st.session_state.chat_history.append(("user", user_question))
+        st.session_state.chat_history.append(("assistant", response))
+
+    if "highlight_graph" in st.session_state:
+        graph_id = st.session_state.pop("highlight_graph")
+
+        st.markdown(
+            f"""
+            <script>
+                const el = document.getElementById("{graph_id}");
+                if (el) {{
+                    el.classList.add("graph-highlight");
+                    setTimeout(() => el.classList.remove("graph-highlight"), 3000);
+                }}
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    for role, msg in st.session_state.chat_history:
+        with st.chat_message(role):
+            st.write(msg)
+    if len(st.session_state.chat_history) >= 2:
+        st.markdown("**Was this explanation helpful?**")
+
+        feedback = st.radio(
+            "",
+            ["👍 Yes", "😐 Somewhat", "👎 No"],
+            horizontal=True,
+            key=f"feedback_{len(st.session_state.chat_history)}"
+        )
+
+        if feedback:
+            st.info("Thank you for your feedback!")
+
+
+    st.caption(
+        "⚠️ This AI assistant provides explanatory support only. "
+        "It does not provide medical advice, diagnosis, or treatment."
+    )
 # -------------------------------------------------
 # FOOTER
 # -------------------------------------------------
@@ -1811,4 +2333,3 @@ st.markdown(f"""
     <p>Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M')} IST</p>
 </div>
 """, unsafe_allow_html=True)
-
