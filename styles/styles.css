@@ -1,1584 +1,266 @@
-/* ===============================
-   GLOBAL DARK BACKGROUND FIX
-================================ */
-
-html, body, [class*="css"] {
-    background-color: #020617 !important;
-    color: #e5e7eb;
-}
-
-.stApp {
-    background: radial-gradient(
-        circle at top,
-        #020617 0%,
-        #020617 40%,
-        #020617 100%
-    ) !important;
-}
-/* ===============================
-   MAIN CONTENT CONTAINER
-================================ */
-
-.block-container {
-    padding-top: 1.2rem !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-    max-width: 1400px;
-    margin: auto;
-}
-
 /* =====================================================
-   DESIGN TOKENS
+   🌌 GLOBAL THEME FOUNDATION
    ===================================================== */
+
 :root {
-    --primary: #38bdf8;
-    --secondary: #6366f1;
-    --success: #22c55e;
-    --warning: #facc15;
-    --danger: #f97373;
+    --bg-deep: #020617;
+    --bg-mid: #0f172a;
+    --bg-glass: rgba(15, 23, 42, 0.75);
 
-    --bg-dark-1: #020617;
-    --bg-dark-2: #0f172a;
-
-    --text-main: #f8fafc;
-    --text-muted: #9ca3af;
-    --border-soft: rgba(148, 163, 184, 0.25);
-}
-
-/* =====================================================
-   GLOBAL RESET
-   ===================================================== */
-html, body {
-    background: radial-gradient(circle at top left,
-        #020617 0%,
-        #020617 45%,
-        #000000 100%);
-    color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont,
-                 "Segoe UI", Roboto, sans-serif;
-}
-
-/* ===============================
-   MAIN SECTION TITLES
-================================ */
-
-h2, h1 {
-    color: #f8fafc !important;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-}
-
-/* Risk Evaluation Summary */
-h2:has(span) {
-    text-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
-}
-
-/* Tabs container grounding */
-.stTabs {
-    padding-top: 6px;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.4);
-}
-
-
-/* =====================================================
-   STREAMLIT CORE OVERRIDES
-   ===================================================== */
-.block-container {
-    padding-top: 0.8rem;
-}
-
-[data-testid="stAppViewContainer"] {
-    background: transparent;
-}
-
-[data-testid="stVerticalBlock"] {
-    background: transparent !important;
-}
-
-/* =====================================================
-   HERO HEADER
-   ===================================================== */
-.app-hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 22px 30px;
-    margin-bottom: 16px;
-    background: linear-gradient(
-        135deg,
-        rgba(15, 23, 42, 0.85),
-        rgba(15, 23, 42, 0.35)
-    );
-    border-radius: 18px;
-    border: 1px solid var(--border-soft);
-    backdrop-filter: blur(14px);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
-}
-
-.app-hero-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.app-logo {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: radial-gradient(circle at 20% 20%,
-        var(--primary),
-        #0ea5e9,
-        var(--secondary)
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
-}
-
-/* ===============================
-   HERO HEADER – TITLE FIX
-================================ */
-
-.app-title-main {
-    font-size: 32px;              /* BIG & confident */
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    color: #f8fafc;
-    line-height: 1.2;
-    text-shadow:
-        0 0 6px rgba(56, 189, 248, 0.6),
-        0 0 18px rgba(56, 189, 248, 0.35);
-}
-
-.app-title-sub {
-    font-size: 14px;
-    font-weight: 500;
-    color: #c7d2fe;
-    opacity: 0.9;
-    margin-top: 2px;
-}
-.app-hero {
-    min-height: 88px;
-    padding: 22px 36px;
-    border-radius: 22px;
-}
-
-.hero-badge {
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid var(--border-soft);
-    color: var(--text-muted);
-}
-
-/* =====================================================
-   GLASS CARDS
-   ===================================================== */
-.glass-card {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 23, 42, 0.80),
-        rgba(15, 23, 42, 0.35)
-    );
-    border-radius: 18px;
-    padding: 18px 20px;
-    border: 1px solid var(--border-soft);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.75);
-}
-
-/* =====================================================
-   SIDEBAR
-   ===================================================== */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(
-        180deg,
-        #020617 0%,
-        #020617 100%
-    );
-    border-right: 1px solid rgba(148, 163, 184, 0.35);
-}
-
-section[data-testid="stSidebar"] .block-container {
-    padding-top: 0.5rem;
-}
-
-/* =====================================================
-   RISK BANNERS
-   ===================================================== */
-.risk-high {
-    background: radial-gradient(circle at top left,
-        rgba(248, 113, 113, 0.18),
-        rgba(127, 29, 29, 0.85)
-    );
-    border-left: 5px solid var(--danger);
-    color: #fee2e2;
-}
-
-.risk-moderate {
-    background: radial-gradient(circle at top left,
-        rgba(251, 191, 36, 0.15),
-        rgba(113, 63, 18, 0.85)
-    );
-    border-left: 5px solid var(--warning);
-    color: #fef9c3;
-}
-
-.risk-low {
-    background: radial-gradient(circle at top left,
-        rgba(52, 211, 153, 0.18),
-        rgba(6, 95, 70, 0.85)
-    );
-    border-left: 5px solid var(--success);
-    color: #dcfce7;
-}
-
-/* =====================================================
-   BUTTONS
-   ===================================================== */
-div.stButton > button {
-    border-radius: 999px;
-    border: 1px solid rgba(56, 189, 248, 0.6);
-    background: linear-gradient(120deg,
-        #0ea5e9,
-        #22c55e
-    );
-    color: white;
-    padding: 0.5rem 1.3rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
-    transition: all 0.18s ease;
-}
-
-div.stButton > button:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-    box-shadow: 0 14px 30px rgba(56, 189, 248, 0.55);
-}
-
-/* =====================================================
-   METRICS
-   ===================================================== */
-[data-testid="stMetric"] {
-    background: rgba(15, 23, 42, 0.8);
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(129, 140, 248, 0.4);
-    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.85);
-}
-
-/* ===============================
-   TAB STYLING (HIGH CONTRAST)
-================================ */
-
-.stTabs [data-baseweb="tab"] {
-    background: rgba(15, 23, 42, 0.85);
-    border-radius: 999px;
-    padding: 8px 18px;
-    font-size: 13px;
-    color: #9ca3af;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    transition: all 0.2s ease;
-}
-
-.stTabs [data-baseweb="tab"]:hover {
-    color: #e5e7eb;
-    border-color: #38bdf8;
-}
-
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(120deg, #38bdf8, #6366f1) !important;
-    color: #020617 !important;
-    font-weight: 700;
-    box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
-}
-/* ===============================
-   INFO / WARNING PANELS
-================================ */
-
-.stAlert {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 23, 42, 0.95),
-        rgba(30, 64, 175, 0.45)
-    ) !important;
-    border-radius: 16px;
-    border: 1px solid rgba(56, 189, 248, 0.4);
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.8);
-}
-
-/* =====================================================
-   ANIMATIONS
-   ===================================================== */
-.main-fade {
-    animation: fadeInUp 0.4s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* =====================================================
-   RESPONSIVE
-   ===================================================== */
-@media (max-width: 768px) {
-    .app-hero {
-        flex-direction: column;
-        gap: 12px;
-        text-align: center;
-    }
-
-    .app-title-main {
-        font-size: 20px;
-    }
-}
-/* =====================================================
-   🌌 PREMIUM DESIGN SYSTEM
-   ===================================================== */
-:root {
     --accent-blue: #38bdf8;
     --accent-violet: #6366f1;
     --accent-green: #22c55e;
     --accent-yellow: #facc15;
     --accent-red: #f97373;
 
-    --bg-deep: #020617;
-    --bg-mid: #0f172a;
-    --bg-soft: rgba(15, 23, 42, 0.65);
-
-    --glass-border: rgba(148, 163, 184, 0.25);
-    --glass-glow: rgba(56, 189, 248, 0.35);
-
     --text-main: #f8fafc;
     --text-muted: #9ca3af;
+
+    --border-soft: rgba(148, 163, 184, 0.25);
 }
 
 /* =====================================================
-   🌠 AMBIENT BACKGROUND
+   🌠 APP BACKGROUND
    ===================================================== */
+
 html, body {
     background:
-        radial-gradient(circle at 10% 10%, rgba(56,189,248,0.12), transparent 35%),
-        radial-gradient(circle at 90% 20%, rgba(99,102,241,0.10), transparent 40%),
-        radial-gradient(circle at 50% 90%, rgba(34,197,94,0.08), transparent 45%),
+        radial-gradient(circle at 15% 20%, rgba(56,189,248,0.12), transparent 35%),
+        radial-gradient(circle at 85% 25%, rgba(99,102,241,0.10), transparent 40%),
+        radial-gradient(circle at 50% 85%, rgba(34,197,94,0.08), transparent 45%),
         linear-gradient(180deg, #020617, #020617);
     color: var(--text-main);
     font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont;
 }
 
+.stApp {
+    background: transparent !important;
+}
+
 /* =====================================================
-   🧬 HERO HEADER (CINEMATIC)
+   📦 MAIN CONTAINER
    ===================================================== */
+
+.block-container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 1rem 2rem;
+}
+
+/* =====================================================
+   🧬 HERO HEADER
+   ===================================================== */
+
 .app-hero {
-    position: relative;
-    padding: 26px 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    margin-bottom: 18px;
     border-radius: 22px;
     background: linear-gradient(
         135deg,
-        rgba(15, 23, 42, 0.95),
-        rgba(15, 23, 42, 0.45)
+        rgba(15,23,42,0.95),
+        rgba(15,23,42,0.45)
     );
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--border-soft);
     backdrop-filter: blur(18px);
-    box-shadow:
-        0 25px 60px rgba(0,0,0,0.85),
-        inset 0 0 0 1px rgba(255,255,255,0.03);
-    overflow: hidden;
+    box-shadow: 0 22px 55px rgba(0,0,0,0.85);
 }
 
-/* Light sweep animation */
-.app-hero::after {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(56,189,248,0.08),
-        transparent
-    );
-    animation: heroSweep 12s linear infinite;
+.app-title-main {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    text-shadow:
+        0 0 6px rgba(56,189,248,0.6),
+        0 0 18px rgba(56,189,248,0.35);
 }
 
-@keyframes heroSweep {
-    from { transform: translateX(-50%) rotate(15deg); }
-    to   { transform: translateX(50%) rotate(15deg); }
-}
-
-.app-logo {
-    box-shadow:
-        0 0 18px rgba(56,189,248,0.7),
-        inset 0 0 10px rgba(255,255,255,0.2);
+.app-title-sub {
+    font-size: 13px;
+    color: #c7d2fe;
 }
 
 /* =====================================================
-   🪟 GLASS CARDS (ADVANCED)
+   🪟 GLASS CARDS
    ===================================================== */
+
 .glass-card {
-    position: relative;
-    background: linear-gradient(
-        135deg,
-        rgba(15, 23, 42, 0.85),
-        rgba(15, 23, 42, 0.35)
-    );
-    border-radius: 20px;
-    padding: 22px;
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(20px);
-    box-shadow:
-        0 18px 45px rgba(0,0,0,0.7),
-        inset 0 0 0 1px rgba(255,255,255,0.03);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.glass-card:hover {
-    transform: translateY(-3px);
-    box-shadow:
-        0 25px 60px rgba(0,0,0,0.85),
-        0 0 25px var(--glass-glow);
-}
-
-/* =====================================================
-   📊 METRICS (PREMIUM)
-   ===================================================== */
-[data-testid="stMetric"] {
-    background: linear-gradient(
-        135deg,
-        rgba(15,23,42,0.9),
-        rgba(30,64,175,0.45)
-    );
-    border-radius: 18px;
-    padding: 16px;
-    border: 1px solid rgba(129,140,248,0.45);
-    box-shadow: 0 14px 35px rgba(15,23,42,0.9);
-}
-
-[data-testid="stMetricValue"] {
-    background: linear-gradient(120deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-}
-
-/* =====================================================
-   🔘 BUTTONS (TACTILE)
-   ===================================================== */
-div.stButton > button {
-    border-radius: 999px;
-    background: linear-gradient(120deg, #0ea5e9, #22c55e);
-    color: white;
-    padding: 0.6rem 1.6rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    box-shadow:
-        0 10px 30px rgba(56,189,248,0.45);
-    transition: all 0.2s ease;
-}
-
-div.stButton > button:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 18px 45px rgba(56,189,248,0.65);
-}
-
-div.stButton > button:active {
-    transform: translateY(0) scale(0.98);
-}
-
-/* =====================================================
-   ✨ ANIMATIONS
-   ===================================================== */
-.main-fade {
-    animation: fadeUp 0.6s ease-out both;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-/* =====================================================
-   🚨 RISK PULSE (INTELLIGENT FEEDBACK)
-   ===================================================== */
-.risk-high {
-    animation: pulse-red 1.8s infinite;
-}
-
-.risk-moderate {
-    animation: pulse-yellow 2.2s infinite;
-}
-
-.risk-low {
-    animation: pulse-green 2.8s infinite;
-}
-
-@keyframes pulse-red {
-    0%, 100% {
-        box-shadow: 0 0 0 rgba(248,113,113,0.6);
-    }
-    50% {
-        box-shadow: 0 0 18px rgba(248,113,113,0.9);
-    }
-}
-
-@keyframes pulse-yellow {
-    0%, 100% {
-        box-shadow: 0 0 0 rgba(251,191,36,0.5);
-    }
-    50% {
-        box-shadow: 0 0 14px rgba(251,191,36,0.8);
-    }
-}
-
-@keyframes pulse-green {
-    0%, 100% {
-        box-shadow: 0 0 0 rgba(34,197,94,0.4);
-    }
-    50% {
-        box-shadow: 0 0 12px rgba(34,197,94,0.7);
-    }
-}
-/* ===============================
-   SIDEBAR TEXT – VISIBILITY FIX
-================================ */
-
-section[data-testid="stSidebar"] {
-    background: linear-gradient(
-        180deg,
-        #020617 0%,
-        #020617 100%
-    ) !important;
-}
-
-/* ALL labels in sidebar */
-section[data-testid="stSidebar"] label {
-    color: #f8fafc !important;        /* PURE readable white */
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    opacity: 1 !important;
-}
-
-/* Section titles */
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3 {
-    color: #e0f2fe !important;
-    font-weight: 800 !important;
-    font-size: 15px !important;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-/* ===============================
-   RADIO BUTTONS – CLEAR STATES
-================================ */
-
-section[data-testid="stSidebar"] div[role="radiogroup"] label {
-    color: #cbd5f5 !important;     /* inactive */
-    font-weight: 500 !important;
-    padding: 4px 6px;
-}
-
-/* ACTIVE radio option */
-section[data-testid="stSidebar"]
-div[role="radiogroup"]
-input:checked + div {
-    color: #f8fafc !important;
-    font-weight: 700 !important;
-    text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
-}
-/* ===============================
-   CHECKBOX VISIBILITY
-================================ */
-
-section[data-testid="stSidebar"] input[type="checkbox"] + div {
-    color: #cbd5f5 !important;
-    font-weight: 500 !important;
-}
-
-/* Checked checkbox label */
-section[data-testid="stSidebar"]
-input[type="checkbox"]:checked + div {
-    color: #f8fafc !important;
-    font-weight: 700 !important;
-    text-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
-}
-/* ===============================
-   SIDEBAR GROUPING
-================================ */
-
-section[data-testid="stSidebar"] .stRadio,
-section[data-testid="stSidebar"] .stCheckbox {
-    margin-bottom: 10px;
-    padding-left: 6px;
-}
-
-/* =====================================================
-   📊 METRIC CONFIDENCE RING
-   ===================================================== */
-[data-testid="stMetric"] {
-    position: relative;
-}
-
-[data-testid="stMetric"]::after {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    background: linear-gradient(
-        120deg,
-        rgba(56,189,248,0.6),
-        rgba(99,102,241,0.6),
-        rgba(56,189,248,0.6)
-    );
-    opacity: 0.35;
-    z-index: -1;
-}
-/* =====================================================
-   🖱️ CURSOR GLOW LAYER
-   ===================================================== */
-.cursor-glow {
-    pointer-events: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        rgba(56,189,248,0.15),
-        rgba(99,102,241,0.08),
-        transparent 70%
-    );
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    mix-blend-mode: screen;
-    transition: transform 0.06s linear;
-}
-/* =====================================================
-   🌊 SCROLL REVEAL
-   ===================================================== */
-.reveal {
-    opacity: 0;
-    transform: translateY(14px);
-    transition: all 0.6s ease;
-}
-
-.reveal.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-/* =====================================================
-   🧬 OMICS VISUAL LANGUAGE
-   ===================================================== */
-
-/* Base Omics Card */
-.omics-card {
-    position: relative;
-    border-radius: 18px;
-    padding: 18px 20px;
-    border: 1px solid rgba(148,163,184,0.25);
     background: linear-gradient(
         135deg,
         rgba(15,23,42,0.85),
         rgba(15,23,42,0.35)
     );
+    border-radius: 18px;
+    padding: 20px;
+    border: 1px solid var(--border-soft);
     backdrop-filter: blur(16px);
-    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.7);
 }
 
-/* Shared glow layer */
-.omics-card::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    opacity: 0.35;
-    pointer-events: none;
-}
-
-/* =====================
-   GENOMICS (DNA)
-   ===================== */
-.omics-genomics {
-    border-left: 4px solid #a78bfa;
-}
-.omics-genomics::after {
-    background: linear-gradient(
-        120deg,
-        rgba(167,139,250,0.5),
-        transparent
-    );
-    animation: genomeWave 6s ease-in-out infinite;
-}
-
-@keyframes genomeWave {
-    0%,100% { transform: translateX(-10%); }
-    50% { transform: translateX(10%); }
-}
-
-/* =====================
-   PROTEOMICS
-   ===================== */
-.omics-proteomics {
-    border-left: 4px solid #38bdf8;
-}
-.omics-proteomics::after {
-    background: radial-gradient(
-        circle,
-        rgba(56,189,248,0.45),
-        transparent 70%
-    );
-    animation: proteinGlow 3.5s ease-in-out infinite;
-}
-
-@keyframes proteinGlow {
-    0%,100% { opacity: 0.25; }
-    50% { opacity: 0.55; }
-}
-
-/* =====================
-   METABOLOMICS
-   ===================== */
-.omics-metabolomics {
-    border-left: 4px solid #22c55e;
-}
-.omics-metabolomics::after {
-    background: radial-gradient(
-        circle,
-        rgba(34,197,94,0.45),
-        transparent 70%
-    );
-    animation: metabPulse 2.8s ease-in-out infinite;
-}
-
-@keyframes metabPulse {
-    0%,100% { transform: scale(0.96); }
-    50% { transform: scale(1.02); }
-}
-
-/* =====================
-   EPIGENETICS
-   ===================== */
-.omics-epigenetics {
-    border-left: 4px solid #facc15;
-}
-.omics-epigenetics::after {
-    background: linear-gradient(
-        135deg,
-        rgba(250,204,21,0.4),
-        transparent
-    );
-    animation: epiDrift 5s ease-in-out infinite;
-}
-
-@keyframes epiDrift {
-    0%,100% { transform: translateY(-4px); }
-    50% { transform: translateY(4px); }
-}
 /* =====================================================
-   📈 RISK TIMELINE (SIGNAL EVOLUTION)
+   🔘 BUTTONS (GLOBAL)
    ===================================================== */
-.risk-timeline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 14px 0 6px;
-}
 
-.risk-node {
-    flex: 1;
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(148,163,184,0.25);
-    position: relative;
-    overflow: hidden;
-}
-
-.risk-node.active-low {
-    background: linear-gradient(90deg, #22c55e, #4ade80);
-}
-
-.risk-node.active-moderate {
-    background: linear-gradient(90deg, #facc15, #fde047);
-}
-
-.risk-node.active-high {
-    background: linear-gradient(90deg, #f97373, #fb7185);
-}
-
-.risk-node::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.35),
-        transparent
-    );
-    animation: timelineSweep 2.8s linear infinite;
-}
-
-@keyframes timelineSweep {
-    from { transform: translateX(-100%); }
-    to   { transform: translateX(100%); }
-}
-
-.timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--text-muted);
-}
-/* =====================================================
-   📉 MODEL CONFIDENCE & UNCERTAINTY
-   ===================================================== */
-.confidence-box {
-    margin-top: 12px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: linear-gradient(
-        135deg,
-        rgba(15,23,42,0.85),
-        rgba(15,23,42,0.45)
-    );
-    border: 1px solid rgba(148,163,184,0.25);
-    backdrop-filter: blur(14px);
-}
-
-.confidence-high {
-    border-left: 4px solid #22c55e;
-    box-shadow: 0 0 18px rgba(34,197,94,0.35);
-}
-
-.confidence-medium {
-    border-left: 4px solid #facc15;
-    box-shadow: 0 0 16px rgba(250,204,21,0.35);
-}
-
-.confidence-low {
-    border-left: 4px solid #f97373;
-    box-shadow: 0 0 16px rgba(249,115,115,0.35);
-}
-
-.confidence-title {
+button,
+.stButton > button,
+.stDownloadButton > button {
+    border-radius: 999px !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     font-weight: 700;
-    margin-bottom: 4px;
+    padding: 0.55rem 1.4rem;
+    border: none;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    transition: all 0.2s ease;
 }
 
-.confidence-desc {
-    font-size: 13px;
-    color: var(--text-muted);
+button:hover {
+    background-color: #f1f5f9 !important;
+    transform: translateY(-1px);
 }
+
+button span {
+    color: #000000 !important;
+}
+
 /* =====================================================
-   🌗 LIGHT MODE OVERRIDES
+   📊 METRICS
    ===================================================== */
-[data-theme="light"] {
-    --bg-deep: #f8fafc;
-    --bg-mid: #eef2ff;
-    --bg-soft: rgba(255,255,255,0.85);
 
-    --text-main: #020617;
-    --text-muted: #475569;
-
-    --glass-border: rgba(15,23,42,0.15);
-    --glass-glow: rgba(99,102,241,0.25);
+[data-testid="stMetric"] {
+    background: var(--bg-glass);
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(129,140,248,0.45);
+    box-shadow: 0 14px 35px rgba(0,0,0,0.85);
 }
 
-/* Light background */
-[data-theme="light"] html,
-[data-theme="light"] body {
-    background:
-        radial-gradient(circle at 10% 10%, rgba(99,102,241,0.08), transparent 40%),
-        linear-gradient(180deg, #f8fafc, #eef2ff);
+[data-testid="stMetricValue"] {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-/* Light glass cards */
-[data-theme="light"] .glass-card,
-[data-theme="light"] .omics-card,
-[data-theme="light"] .confidence-box {
-    background: linear-gradient(
-        135deg,
-        rgba(255,255,255,0.95),
-        rgba(248,250,252,0.85)
-    );
-    color: #020617;
-}
-
-/* Light hero */
-[data-theme="light"] .app-hero {
-    background: linear-gradient(
-        135deg,
-        rgba(255,255,255,0.95),
-        rgba(238,242,255,0.85)
-    );
-}
-
-/* Light buttons */
-[data-theme="light"] div.stButton > button {
-    background: linear-gradient(120deg, #6366f1, #60a5fa);
-}
 /* =====================================================
-   🧠 AI EXPLANATION PANEL (THINKING GLOW)
+   🧭 TABS — FINAL, STABLE SYSTEM
    ===================================================== */
+
+.stTabs [data-baseweb="tab"] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 600;
+    border-radius: 999px !important;
+    padding: 10px 18px !important;
+    border: 1px solid rgba(148,163,184,0.35);
+}
+
+.stTabs [data-baseweb="tab"] span,
+.stTabs [data-baseweb="tab"] svg {
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* Active tab */
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 0 #60a5fa;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] span,
+.stTabs [data-baseweb="tab"][aria-selected="true"] svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+/* Scrollable tabs */
+.stTabs [data-baseweb="tab-list"] {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #38bdf8 transparent;
+}
+
+/* =====================================================
+   🧠 AI EXPLANATION PANEL
+   ===================================================== */
+
 .ai-panel {
-    position: relative;
     margin-top: 16px;
-    padding: 20px 22px;
+    padding: 20px;
     border-radius: 18px;
     background: linear-gradient(
         135deg,
         rgba(15,23,42,0.9),
         rgba(15,23,42,0.5)
     );
-    border: 1px solid rgba(148,163,184,0.3);
+    border: 1px solid var(--border-soft);
     backdrop-filter: blur(18px);
-    box-shadow:
-        0 20px 45px rgba(0,0,0,0.75);
-    overflow: hidden;
-}
-
-/* Thinking glow */
-.ai-panel::before {
-    content: "";
-    position: absolute;
-    inset: -40%;
-    background: radial-gradient(
-        circle,
-        rgba(56,189,248,0.18),
-        rgba(99,102,241,0.12),
-        transparent 60%
-    );
-    animation: aiThinking 4.5s ease-in-out infinite;
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-@keyframes aiThinking {
-    0%,100% {
-        transform: translate(-10%, -10%);
-        opacity: 0.35;
-    }
-    50% {
-        transform: translate(10%, 10%);
-        opacity: 0.65;
-    }
-}
-
-.ai-title {
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    margin-bottom: 8px;
-}
-
-.ai-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-}
-
-.ai-point {
-    margin: 6px 0;
-    font-size: 14px;
-}
-/* ===============================
-   SCROLLABLE TABS
-================================ */
-
-.stTabs [data-baseweb="tab-list"] {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    scrollbar-width: thin;
-    scrollbar-color: #38bdf8 transparent;
-    padding-bottom: 6px;
-}
-
-/* Chrome / Edge */
-.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
-    height: 6px;
-}
-.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, #38bdf8, #6366f1);
-    border-radius: 999px;
-}
-/* ===============================
-   SIDEBAR VISIBILITY FIX
-================================ */
-
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3 {
-    font-size: 15px;
-    font-weight: 800;
-    color: #e0f2fe;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-top: 16px;
-    margin-bottom: 8px;
-}
-/* ===============================
-   SLIDERS & INPUTS – HIGH CONTRAST
-================================ */
-
-section[data-testid="stSidebar"] label {
-    color: #e5e7eb !important;
-    font-weight: 600;
-}
-
-.stSlider > div > div > div {
-    background: linear-gradient(90deg, #38bdf8, #6366f1) !important;
-}
-
-.stSlider [role="slider"] {
-    background: #020617 !important;
-    border: 2px solid #38bdf8 !important;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
-}
-
-.stNumberInput input,
-.stSelectbox div[data-baseweb="select"] {
-    background-color: rgba(15, 23, 42, 0.9) !important;
-    border: 1px solid rgba(56, 189, 248, 0.4) !important;
-    color: #f8fafc !important;
-}
-section[data-testid="stSidebar"] hr {
-    border: none;
-    height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(56, 189, 248, 0.6),
-        transparent
-    );
-    margin: 14px 0;
-}
-/* ===============================
-   RADIO BUTTONS – FORCE VISIBILITY
-================================ */
-
-/* Radio option container */
-section[data-testid="stSidebar"] [role="radiogroup"] > label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
-    border-radius: 10px;
-    color: #cbd5f5 !important;
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 1 !important;
-}
-
-/* Selected radio */
-section[data-testid="stSidebar"]
-[role="radiogroup"] input:checked + div {
-    color: #f8fafc !important;
-    font-weight: 700 !important;
-    text-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
-}
-
-/* Radio hover */
-section[data-testid="stSidebar"]
-[role="radiogroup"] label:hover {
-    background: rgba(56, 189, 248, 0.08);
-}
-/* ===============================
-   SIDEBAR SECTION HEADERS
-================================ */
-
-section[data-testid="stSidebar"] h3 {
-    margin-top: 20px;
-    margin-bottom: 6px;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    color: #e0f2fe !important;
-    text-transform: uppercase;
-}
-
-/* Divider under each section */
-section[data-testid="stSidebar"] h3::after {
-    content: "";
-    display: block;
-    height: 1px;
-    margin-top: 6px;
-    background: linear-gradient(
-        90deg,
-        rgba(56,189,248,0.8),
-        transparent
-    );
-}
-/* ===============================
-   SELECTBOX DARK MODE FIX
-================================ */
-
-section[data-testid="stSidebar"]
-div[data-baseweb="select"] > div {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border: 1px solid rgba(56, 189, 248, 0.5) !important;
-    color: #f8fafc !important;
-    border-radius: 12px;
-}
-
-/* Dropdown arrow */
-section[data-testid="stSidebar"]
-svg {
-    fill: #38bdf8 !important;
-}
-
-/* Dropdown menu */
-div[data-baseweb="popover"] {
-    background: #020617 !important;
-}
-/* ===============================
-   REMOVE TOP WHITE BLEED
-================================ */
-
-header, .stAppHeader {
-    background: transparent !important;
-}
-
-body {
-    margin-top: 0 !important;
-}
-/* ===============================
-   FORCE RADIO TEXT VISIBILITY
-   (FINAL FIX – DO NOT MODIFY)
-================================ */
-
-/* Target ALL text inside radio options */
-section[data-testid="stSidebar"]
-div[role="radiogroup"] label * {
-    color: #f8fafc !important;
-    opacity: 1 !important;
-    font-weight: 600 !important;
-}
-
-/* Selected radio – stronger emphasis */
-section[data-testid="stSidebar"]
-div[role="radiogroup"] input:checked ~ div * {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    text-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
-}
-
-/* Slight dim only on hover-out, NOT disabled */
-section[data-testid="stSidebar"]
-div[role="radiogroup"] label:hover * {
-    color: #e0f2fe !important;
-}
-section[data-testid="stSidebar"] summary:hover {
-    background: rgba(56, 189, 248, 0.12);
-}
-section[data-testid="stSidebar"] details[open] summary {
-    background: linear-gradient(
-        90deg,
-        rgba(56, 189, 248, 0.35),
-        transparent
-    );
-}
-/* =====================================================
-   🔒 GLOBAL TEXT VISIBILITY FIX (FINAL)
-   ===================================================== */
-
-/* Default text everywhere */
-html, body, .stApp {
-    color: #f8fafc !important;
-}
-
-/* Markdown & normal text */
-.stMarkdown, 
-.stMarkdown p, 
-.stMarkdown span, 
-.stMarkdown li,
-.stMarkdown div {
-    color: #f8fafc !important;
-}
-
-/* Headings */
-h1, h2, h3, h4, h5, h6 {
-    color: #ffffff !important;
-}
-
-/* Metrics */
-[data-testid="stMetricLabel"],
-[data-testid="stMetricValue"] {
-    color: #f8fafc !important;
-}
-
-/* Tables & DataFrames */
-.stDataFrame,
-.stDataFrame td,
-.stDataFrame th {
-    color: #f8fafc !important;
-    background-color: rgba(15, 23, 42, 0.85) !important;
-}
-
-/* Inputs: number, text */
-input, textarea {
-    color: #ffffff !important;
-}
-
-/* Selectbox text */
-div[data-baseweb="select"] span {
-    color: #ffffff !important;
-}
-
-/* Radio & checkbox labels (main area, not sidebar) */
-label, 
-label span {
-    color: #f8fafc !important;
-}
-
-/* Tabs content */
-.stTabs, 
-.stTabs div {
-    color: #f8fafc !important;
-}
-
-/* Alerts (info, warning, error, success) */
-.stAlert p, 
-.stAlert div {
-    color: #ffffff !important;
-}
-
-/* Footer text */
-footer, 
-footer p {
-    color: #9ca3af !important;
-}
-/* =====================================================
-   ☀️ LIGHT MODE OVERRIDES
-   ===================================================== */
-[data-theme="light"] {
-    color: #020617 !important;
-}
-
-[data-theme="light"] .stMarkdown,
-[data-theme="light"] p,
-[data-theme="light"] span,
-[data-theme="light"] label {
-    color: #020617 !important;
-}
-/* =====================================================
-   🌌 DEEP BIO-INTELLIGENCE BACKGROUND (FINAL)
-   ===================================================== */
-
-html, body {
-    background:
-        /* AI intelligence glow */
-        radial-gradient(circle at 15% 20%,
-            rgba(56, 189, 248, 0.12),
-            transparent 35%),
-
-        /* Decision-support violet */
-        radial-gradient(circle at 85% 25%,
-            rgba(99, 102, 241, 0.10),
-            transparent 40%),
-
-        /* Biological signal hint */
-        radial-gradient(circle at 50% 85%,
-            rgba(34, 197, 94, 0.08),
-            transparent 45%),
-
-        /* Base clinical dark */
-        linear-gradient(180deg,
-            #020617 0%,
-            #020617 100%);
-    
-    color: #f8fafc;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont;
-}
-
-/* Remove any white bleed */
-header, .stAppHeader {
-    background: transparent !important;
-}
-
-/* Main app container */
-.stApp {
-    background: transparent !important;
-}
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            rgba(255,255,255,0.015),
-            rgba(255,255,255,0.015) 1px,
-            transparent 1px,
-            transparent 6px
-        );
-    pointer-events: none;
-    z-index: 0;
-}
-[data-theme="light"] html,
-[data-theme="light"] body {
-    background:
-        radial-gradient(circle at 20% 10%,
-            rgba(99,102,241,0.08),
-            transparent 45%),
-        linear-gradient(180deg,
-            #f8fafc,
-            #eef2ff);
-    color: #020617;
-}
-/* =====================================================
-   🚨 RISK-AWARE AMBIENT GLOW
-   ===================================================== */
-
-[data-risk="risk-low"] body {
-    box-shadow: inset 0 0 220px rgba(34,197,94,0.12);
-}
-
-[data-risk="risk-moderate"] body {
-    box-shadow: inset 0 0 240px rgba(250,204,21,0.14);
-}
-
-[data-risk="risk-high"] body {
-    box-shadow: inset 0 0 260px rgba(248,113,113,0.16);
-}
-/* =====================================================
-   ✨ ACADEMIC MICRO-ANIMATIONS
-   ===================================================== */
-
-.main-fade {
-    animation: fadeUp 0.6s ease-out both;
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Risk pulse — very soft */
-.risk-high { animation: pulseRed 2.6s infinite; }
-.risk-moderate { animation: pulseYellow 3.2s infinite; }
-.risk-low { animation: pulseGreen 3.8s infinite; }
-
-@keyframes pulseRed {
-    0%,100% { box-shadow: 0 0 0 rgba(248,113,113,0.4); }
-    50% { box-shadow: 0 0 18px rgba(248,113,113,0.6); }
-}
-@keyframes pulseYellow {
-    0%,100% { box-shadow: 0 0 0 rgba(250,204,21,0.35); }
-    50% { box-shadow: 0 0 14px rgba(250,204,21,0.55); }
-}
-@keyframes pulseGreen {
-    0%,100% { box-shadow: 0 0 0 rgba(34,197,94,0.30); }
-    50% { box-shadow: 0 0 12px rgba(34,197,94,0.45); }
-}
-/* =====================================================
-   📄 PDF / PUBLICATION MODE
-   ===================================================== */
-
-[data-export="pdf"] body {
-    background: #ffffff !important;
-    color: #020617 !important;
-}
-
-[data-export="pdf"] * {
-    box-shadow: none !important;
-    animation: none !important;
-}
-/* =====================================================
-   ☀️ LIGHT MODE — JOURNAL STYLE
-   ===================================================== */
-
-[data-theme="light"] html,
-[data-theme="light"] body {
-    background:
-        radial-gradient(circle at 20% 10%,
-            rgba(99,102,241,0.10),
-            transparent 45%),
-        linear-gradient(180deg,
-            #f8fafc,
-            #eef2ff);
-    color: #020617;
-}
-/* =====================================================
-   🧠 MODEL CONFIDENCE VISIBILITY FIX
-   ===================================================== */
-
-.confidence-box {
-    color: #f8fafc !important;
-}
-
-.confidence-title {
-    color: #ffffff !important;
-    font-weight: 600;
-}
-
-.confidence-desc {
-    color: #cbd5f5 !important;
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-/* =====================================================
-   🧑 SIDEBAR PATIENT DETAILS VISIBILITY FIX
-   ===================================================== */
-
-/* Expander header text */
-section[data-testid="stSidebar"] label,
-section[data-testid="stSidebar"] span,
-section[data-testid="stSidebar"] div {
-    color: #f8fafc !important;
-}
-
-/* Expander title specifically */
-section[data-testid="stSidebar"] summary {
-    color: #ffffff !important;
-    font-weight: 600;
-}
-
-/* Dropdown & input text inside sidebar */
-section[data-testid="stSidebar"] input,
-section[data-testid="stSidebar"] select {
-    color: #ffffff !important;
-}
-/* Sidebar expander background */
-section[data-testid="stSidebar"] details {
-    background: rgba(15, 23, 42, 0.85);
-    border-radius: 12px;
-    padding: 6px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.75);
 }
 
 /* =====================================================
-   🧠 MODEL CONFIDENCE — HARD VISIBILITY GUARANTEE
-   ===================================================== */
-
-.confidence-box {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-    display: block !important;
-    color: #f8fafc !important;
-    margin-top: 1rem;
-}
-
-.confidence-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #ffffff !important;
-}
-
-.confidence-desc {
-    margin-top: 0.35rem;
-    color: #cbd5f5 !important;
-    line-height: 1.5;
-}
-/* =====================================================
-   🔦 GRAPH HIGHLIGHT
+   📈 GRAPH HIGHLIGHT
    ===================================================== */
 
 .graph-highlight {
-    box-shadow: 0 0 0 3px rgba(56,189,248,0.8),
-                0 0 25px rgba(56,189,248,0.6);
+    box-shadow:
+        0 0 0 3px rgba(56,189,248,0.85),
+        0 0 28px rgba(56,189,248,0.6);
     border-radius: 14px;
     transition: box-shadow 0.3s ease;
 }
+
 /* =====================================================
-   🌗 GLOBAL CONTRAST FIX: WHITE BOX → BLACK TEXT
+   🚨 RISK STATES
    ===================================================== */
 
-/* Buttons (including Download PDF) */
-button,
-.stButton > button,
-.stDownloadButton > button {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    font-weight: 600;
+.risk-low {
+    border-left: 5px solid var(--accent-green);
 }
 
-/* Button text (inner span) */
-button span {
-    color: #000000 !important;
+.risk-moderate {
+    border-left: 5px solid var(--accent-yellow);
 }
 
-/* Disabled buttons (still readable) */
-button:disabled {
-    color: #000000 !important;
-    opacity: 0.6;
+.risk-high {
+    border-left: 5px solid var(--accent-red);
 }
 
-/* Text inputs & select boxes with white background */
-input,
-textarea,
-select {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-}
-
-/* Placeholder text */
-input::placeholder,
-textarea::placeholder {
-    color: #4b5563 !important;
-}
 /* =====================================================
-   🧭 TAB VISIBILITY & CONTRAST FIX
+   ✨ ANIMATIONS
    ===================================================== */
 
-/* Base tab button */
-div[data-baseweb="tab"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    font-weight: 600;
-    border-radius: 999px !important;
-    padding: 10px 18px !important;
+.main-fade {
+    animation: fadeUp 0.5s ease-out both;
 }
 
-/* Tab text */
-div[data-baseweb="tab"] span {
-    color: #000000 !important;
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Tab icons (emoji / svg) */
-div[data-baseweb="tab"] svg {
-    fill: #000000 !important;
-}
+/* =====================================================
+   📱 RESPONSIVE
+   ===================================================== */
 
-/* Hover state */
-div[data-baseweb="tab"]:hover {
-    background-color: #f1f5f9 !important;
-}
+@media (max-width: 768px) {
+    .app-hero {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
 
-/* ACTIVE tab */
-div[data-baseweb="tab"][aria-selected="true"] {
-    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
-    color: #ffffff !important;
+    .app-title-main {
+        font-size: 22px;
+    }
 }
-
-/* Active tab text */
-div[data-baseweb="tab"][aria-selected="true"] span {
-    color: #ffffff !important;
-}
-
-/* Active tab icons */
-div[data-baseweb="tab"][aria-selected="true"] svg {
-    fill: #ffffff !important;
-}
-div[data-baseweb="tab"][aria-selected="true"] {
-    box-shadow: 0 3px 0 #60a5fa;
-}
-
