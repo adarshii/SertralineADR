@@ -13,7 +13,7 @@ from feature_builder import build_feature_vector
 from database import init_db, get_connection
 from fpdf import FPDF
 from io import BytesIO
-
+import textwrap
 # -------------------------------------------------
 # Page configuration
 # -------------------------------------------------
@@ -518,6 +518,10 @@ def detect_graph_reference(question: str):
 
     return None
 
+def wrap_pdf_text(text, width=100):
+    return "\n".join(
+        textwrap.wrap(text, width, break_long_words=True)
+    )
 def explain_with_context(context, question):
     intent = detect_intent(question)
 
@@ -631,25 +635,33 @@ def generate_pdf_report(
     pdf.cell(0, 10, "Model Explanation (SHAP-based)", ln=True)
 
     pdf.set_font("Arial", "", 11)
+    usable_width = pdf.w - pdf.l_margin - pdf.r_margin
     for exp in explanations:
-        pdf.multi_cell(0, 7, pdf_safe(exp))
-
+        pdf.set_x(pdf.l_margin)
+        safe_text = wrap_pdf_text(pdf_safe(exp))
+        pdf.multi_cell(usable_width, 7, safe_text)
     pdf.ln(2)
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 10, "Model Confidence", ln=True)
 
     pdf.set_font("Arial", "", 11)
-    pdf.multi_cell(0, 7, pdf_safe(confidence_label))
+    pdf.set_x(pdf.l_margin)
+    usable_width = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.multi_cell(usable_width, 7, pdf_safe(confidence_label))
+
     for k, v in patient_info.items():
         pdf.cell(0, 8, pdf_safe(f"{k}: {v}"), ln=True)
     pdf.ln(4)
     pdf.set_font("Arial", "I", 9)
+    pdf.set_x(pdf.l_margin)
+    usable_width = pdf.w - pdf.l_margin - pdf.r_margin
     pdf.multi_cell(
-        0,
+        usable_width,
         6,
         "Disclaimer: This report is generated for research and decision-support "
         "purposes only. Predictions reflect model behavior and are not clinical diagnoses."
     )
+
 
     pdf_bytes = pdf.output(dest="S").encode("latin-1")
     buffer = BytesIO(pdf_bytes)
