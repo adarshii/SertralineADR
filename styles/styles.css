@@ -1,17 +1,16 @@
 /* =====================================================
-   🌌 GLOBAL THEME FOUNDATION
+   🌌 GLOBAL DESIGN TOKENS
    ===================================================== */
-
 :root {
-    --bg-deep: #020617;
-    --bg-mid: #0f172a;
-    --bg-glass: rgba(15, 23, 42, 0.75);
-
     --accent-blue: #38bdf8;
     --accent-violet: #6366f1;
     --accent-green: #22c55e;
     --accent-yellow: #facc15;
     --accent-red: #f97373;
+
+    --bg-deep: #020617;
+    --bg-mid: #0f172a;
+    --bg-glass: rgba(15, 23, 42, 0.75);
 
     --text-main: #f8fafc;
     --text-muted: #9ca3af;
@@ -20,9 +19,8 @@
 }
 
 /* =====================================================
-   🌠 APP BACKGROUND
+   🌠 GLOBAL BACKGROUND
    ===================================================== */
-
 html, body {
     background:
         radial-gradient(circle at 15% 20%, rgba(56,189,248,0.12), transparent 35%),
@@ -40,7 +38,6 @@ html, body {
 /* =====================================================
    📦 MAIN CONTAINER
    ===================================================== */
-
 .block-container {
     max-width: 1400px;
     margin: auto;
@@ -50,7 +47,6 @@ html, body {
 /* =====================================================
    🧬 HERO HEADER
    ===================================================== */
-
 .app-hero {
     display: flex;
     justify-content: space-between;
@@ -86,7 +82,6 @@ html, body {
 /* =====================================================
    🪟 GLASS CARDS
    ===================================================== */
-
 .glass-card {
     background: linear-gradient(
         135deg,
@@ -101,9 +96,8 @@ html, body {
 }
 
 /* =====================================================
-   🔘 BUTTONS (GLOBAL)
+   🔘 BUTTONS (WHITE BG → BLACK TEXT)
    ===================================================== */
-
 button,
 .stButton > button,
 .stDownloadButton > button {
@@ -117,19 +111,18 @@ button,
     transition: all 0.2s ease;
 }
 
+button span {
+    color: #000000 !important;
+}
+
 button:hover {
     background-color: #f1f5f9 !important;
     transform: translateY(-1px);
 }
 
-button span {
-    color: #000000 !important;
-}
-
 /* =====================================================
    📊 METRICS
    ===================================================== */
-
 [data-testid="stMetric"] {
     background: var(--bg-glass);
     padding: 14px;
@@ -147,9 +140,8 @@ button span {
 }
 
 /* =====================================================
-   🧭 TABS — FINAL, STABLE SYSTEM
+   🧭 TABS — SINGLE SOURCE OF TRUTH
    ===================================================== */
-
 .stTabs [data-baseweb="tab"] {
     background-color: #ffffff !important;
     color: #000000 !important;
@@ -169,7 +161,6 @@ button span {
     background-color: #f1f5f9 !important;
 }
 
-/* Active tab */
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
     color: #ffffff !important;
@@ -182,18 +173,9 @@ button span {
     fill: #ffffff !important;
 }
 
-/* Scrollable tabs */
-.stTabs [data-baseweb="tab-list"] {
-    overflow-x: auto;
-    white-space: nowrap;
-    scrollbar-width: thin;
-    scrollbar-color: #38bdf8 transparent;
-}
-
 /* =====================================================
    🧠 AI EXPLANATION PANEL
    ===================================================== */
-
 .ai-panel {
     margin-top: 16px;
     padding: 20px;
@@ -209,9 +191,8 @@ button span {
 }
 
 /* =====================================================
-   📈 GRAPH HIGHLIGHT
+   🔦 GRAPH HIGHLIGHT
    ===================================================== */
-
 .graph-highlight {
     box-shadow:
         0 0 0 3px rgba(56,189,248,0.85),
@@ -223,23 +204,13 @@ button span {
 /* =====================================================
    🚨 RISK STATES
    ===================================================== */
-
-.risk-low {
-    border-left: 5px solid var(--accent-green);
-}
-
-.risk-moderate {
-    border-left: 5px solid var(--accent-yellow);
-}
-
-.risk-high {
-    border-left: 5px solid var(--accent-red);
-}
+.risk-low { border-left: 5px solid var(--accent-green); }
+.risk-moderate { border-left: 5px solid var(--accent-yellow); }
+.risk-high { border-left: 5px solid var(--accent-red); }
 
 /* =====================================================
    ✨ ANIMATIONS
    ===================================================== */
-
 .main-fade {
     animation: fadeUp 0.5s ease-out both;
 }
@@ -252,7 +223,6 @@ button span {
 /* =====================================================
    📱 RESPONSIVE
    ===================================================== */
-
 @media (max-width: 768px) {
     .app-hero {
         flex-direction: column;
