@@ -276,6 +276,15 @@ div.stButton > button:hover {
    TAB STYLING (HIGH CONTRAST)
 ================================ */
 
+.stTabs [data-baseweb="tab"] {
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: #9ca3af;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    transition: all 0.2s ease;
+}
 
 .stTabs [data-baseweb="tab"]:hover {
     color: #e5e7eb;
@@ -889,6 +898,14 @@ section[data-testid="stSidebar"] .stCheckbox {
     --glass-glow: rgba(99,102,241,0.25);
 }
 
+/* Light background */
+[data-theme="light"] html,
+[data-theme="light"] body {
+    background:
+        radial-gradient(circle at 10% 10%, rgba(99,102,241,0.08), transparent 40%),
+        linear-gradient(180deg, #f8fafc, #eef2ff);
+}
+
 /* Light glass cards */
 [data-theme="light"] .glass-card,
 [data-theme="light"] .omics-card,
@@ -1177,6 +1194,11 @@ section[data-testid="stSidebar"] details[open] summary {
    🔒 GLOBAL TEXT VISIBILITY FIX (FINAL)
    ===================================================== */
 
+/* Default text everywhere */
+html, body, .stApp {
+    color: #f8fafc !important;
+}
+
 /* Markdown & normal text */
 .stMarkdown, 
 .stMarkdown p, 
@@ -1213,6 +1235,12 @@ input, textarea {
 /* Selectbox text */
 div[data-baseweb="select"] span {
     color: #ffffff !important;
+}
+
+/* Radio & checkbox labels (main area, not sidebar) */
+label, 
+label span {
+    color: #f8fafc !important;
 }
 
 /* Tabs content */
@@ -1298,6 +1326,17 @@ body::before {
         );
     pointer-events: none;
     z-index: 0;
+}
+[data-theme="light"] html,
+[data-theme="light"] body {
+    background:
+        radial-gradient(circle at 20% 10%,
+            rgba(99,102,241,0.08),
+            transparent 45%),
+        linear-gradient(180deg,
+            #f8fafc,
+            #eef2ff);
+    color: #020617;
 }
 /* =====================================================
    🚨 RISK-AWARE AMBIENT GLOW
@@ -1458,66 +1497,5 @@ section[data-testid="stSidebar"] details {
                 0 0 25px rgba(56,189,248,0.6);
     border-radius: 14px;
     transition: box-shadow 0.3s ease;
-}
-/* ===============================
-   🧭 FINAL TAB VISIBILITY SYSTEM
-================================ */
-
-/* Inactive tabs */
-div[data-baseweb="tab"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    font-weight: 600;
-    border-radius: 999px !important;
-    padding: 10px 18px !important;
-    border: 1px solid rgba(148,163,184,0.35);
-}
-
-/* Inactive tab text + icon */
-div[data-baseweb="tab"] span,
-div[data-baseweb="tab"] svg {
-    color: #000000 !important;
-    fill: #000000 !important;
-}
-
-/* Hover */
-div[data-baseweb="tab"]:hover {
-    background-color: #f1f5f9 !important;
-}
-
-/* ACTIVE tab */
-div[data-baseweb="tab"][aria-selected="true"] {
-    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
-    color: #ffffff !important;
-    box-shadow: 0 3px 0 #60a5fa;
-}
-
-/* Active tab text + icon */
-div[data-baseweb="tab"][aria-selected="true"] span,
-div[data-baseweb="tab"][aria-selected="true"] svg {
-    color: #ffffff !important;
-    fill: #ffffff !important;
-}
-/* ===============================
-   WHITE BACKGROUND → BLACK TEXT
-================================ */
-
-button,
-.stButton > button,
-.stDownloadButton > button {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    font-weight: 600;
-}
-
-button span {
-    color: #000000 !important;
-}
-
-input,
-textarea,
-select {
-    background-color: #ffffff !important;
-    color: #000000 !important;
 }
 
