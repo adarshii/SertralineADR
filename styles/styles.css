@@ -1550,4 +1550,70 @@ section[data-testid="stSidebar"] details {
 [data-export="pdf"] {
   font-family: "Arial", "Helvetica", sans-serif !important;
 }
+/* =========================================
+   EXPORT / PDF MODE — DARK THEME
+   ========================================= */
+
+[data-export="pdf"] {
+  background: linear-gradient(
+    135deg,
+    #020617 0%,
+    #020617 40%,
+    #020617 100%
+  ) !important;
+  color: #e5e7eb !important;
+}
+
+/* Ensure all text stays readable */
+[data-export="pdf"],
+[data-export="pdf"] * {
+  color: #e5e7eb !important;
+}
+
+/* Cards, panels, sections */
+[data-export="pdf"] .glass-card,
+[data-export="pdf"] .ai-panel,
+[data-export="pdf"] .pathway-card,
+[data-export="pdf"] .risk-banner {
+  background: linear-gradient(
+    135deg,
+    #020617 0%,
+    #020617 100%
+  ) !important;
+  border: 1px solid rgba(148, 163, 184, 0.15) !important;
+  box-shadow: none !important;
+}
+
+/* Risk banners (retain semantic color) */
+[data-export="pdf"] .risk-low {
+  background: linear-gradient(90deg, #064e3b, #022c22) !important;
+  border-left: 4px solid #22c55e !important;
+}
+
+[data-export="pdf"] .risk-moderate {
+  background: linear-gradient(90deg, #78350f, #431407) !important;
+  border-left: 4px solid #f97316 !important;
+}
+
+[data-export="pdf"] .risk-high {
+  background: linear-gradient(90deg, #7f1d1d, #450a0a) !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+/* Bullet points */
+[data-export="pdf"] li::marker {
+  color: #e5e7eb !important;
+}
+
+/* Remove glass blur effects (PDF-safe) */
+[data-export="pdf"] .glass-card {
+  backdrop-filter: none !important;
+}
+[data-export="pdf"] {
+  background: #020617 !important;
+}
+
+[data-export="pdf"] * {
+  text-shadow: none !important;
+}
 
