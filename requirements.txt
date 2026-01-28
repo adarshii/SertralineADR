@@ -10,4 +10,4 @@ plotly
 joblib
 scipy
 sqlalchemy
-fpdf2
+fpdf
