@@ -1,10 +1,12 @@
 streamlit
-pandas
 numpy
+pandas
 scikit-learn
 lightgbm
-joblib
-plotly
 shap
-streamlit-shap
 matplotlib
+seaborn
+plotly
+joblib
+scipy
+sqlalchemy
