@@ -1498,4 +1498,41 @@ section[data-testid="stSidebar"] details {
     border-radius: 14px;
     transition: box-shadow 0.3s ease;
 }
+/* =====================================================
+   🌗 GLOBAL CONTRAST FIX: WHITE BOX → BLACK TEXT
+   ===================================================== */
+
+/* Buttons (including Download PDF) */
+button,
+.stButton > button,
+.stDownloadButton > button {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 600;
+}
+
+/* Button text (inner span) */
+button span {
+    color: #000000 !important;
+}
+
+/* Disabled buttons (still readable) */
+button:disabled {
+    color: #000000 !important;
+    opacity: 0.6;
+}
+
+/* Text inputs & select boxes with white background */
+input,
+textarea,
+select {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Placeholder text */
+input::placeholder,
+textarea::placeholder {
+    color: #4b5563 !important;
+}
 
