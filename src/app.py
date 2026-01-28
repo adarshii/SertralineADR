@@ -663,7 +663,7 @@ def generate_pdf_report(
     )
 
 
-    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+    pdf_bytes = pdf.output(dest="S")
     buffer = BytesIO(pdf_bytes)
     return buffer
 
