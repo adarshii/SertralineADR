@@ -13,7 +13,7 @@ from feature_builder import build_feature_vector
 from database import init_db, get_connection
 from fpdf import FPDF
 from io import BytesIO
-import textwrap
+
 # -------------------------------------------------
 # Page configuration
 # -------------------------------------------------
@@ -518,10 +518,6 @@ def detect_graph_reference(question: str):
 
     return None
 
-def wrap_pdf_text(text, width=100):
-    return "\n".join(
-        textwrap.wrap(text, width, break_long_words=True)
-    )
 def explain_with_context(context, question):
     intent = detect_intent(question)
 
@@ -635,35 +631,27 @@ def generate_pdf_report(
     pdf.cell(0, 10, "Model Explanation (SHAP-based)", ln=True)
 
     pdf.set_font("Arial", "", 11)
-    usable_width = pdf.w - pdf.l_margin - pdf.r_margin
     for exp in explanations:
-        pdf.set_x(pdf.l_margin)
-        safe_text = wrap_pdf_text(pdf_safe(exp))
-        pdf.multi_cell(usable_width, 7, safe_text)
+        pdf.multi_cell(0, 7, pdf_safe(exp))
+
     pdf.ln(2)
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 10, "Model Confidence", ln=True)
 
     pdf.set_font("Arial", "", 11)
-    pdf.set_x(pdf.l_margin)
-    usable_width = pdf.w - pdf.l_margin - pdf.r_margin
-    pdf.multi_cell(usable_width, 7, pdf_safe(confidence_label))
-
+    pdf.multi_cell(0, 7, pdf_safe(confidence_label))
     for k, v in patient_info.items():
         pdf.cell(0, 8, pdf_safe(f"{k}: {v}"), ln=True)
     pdf.ln(4)
     pdf.set_font("Arial", "I", 9)
-    pdf.set_x(pdf.l_margin)
-    usable_width = pdf.w - pdf.l_margin - pdf.r_margin
     pdf.multi_cell(
-        usable_width,
+        0,
         6,
         "Disclaimer: This report is generated for research and decision-support "
         "purposes only. Predictions reflect model behavior and are not clinical diagnoses."
     )
 
-
-    pdf_bytes = pdf.output(dest="S")
+    pdf_bytes = pdf.output(dest="S").encode("latin-1")
     buffer = BytesIO(pdf_bytes)
     return buffer
 
@@ -717,25 +705,19 @@ def explain_percentage_risk(percent):
 # -------------------------------------------------
 # Hero header
 # -------------------------------------------------
-st.markdown(
-    """
-    <div class="app-hero">
-        <div class="app-hero-left">
-            <div class="app-logo">💊</div>
-            <div>
-                <div class="app-title-main">ADR•X — Sertraline Signal Explorer</div>
-                <div class="app-title-sub">
-                    Multi-omics clinical decision support · research only
-                </div>
-            </div>
-        </div>
-        <div>
-            <span class="hero-badge">v1.0 · LightGBM · Experimental</span>
-        </div>
+st.markdown("""
+<div class="research-header-strong">
+    <div class="research-main-title">
+        ADR•X
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+    <div class="research-project-title">
+        Sertraline Signal Explorer
+    </div>
+    <div class="research-context-line">
+        AI-Driven Multi-Omics Framework for Adverse Drug Reaction Prediction
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown('<div class="glass-card main-fade">', unsafe_allow_html=True)
 
@@ -796,17 +778,17 @@ components.html(
 )
 
 st.info("""
-### 🧭 How to use this tool
+### How to use this tool
 
 1. Enter patient details in the **left sidebar**
 2. (Optional) Adjust **omics & pharmacogenomic inputs**
-3. Click **🚀 Predict ADR Risk**
+3. Click **Predict ADR Risk**
 4. Review:
    - Overall ADR signal
    - Organ-specific risk radar
    - Biological & pharmacogenomic explanations
 
-📌 This tool is for **research & decision support**, not diagnosis.
+This tool is for **research & decision support**, not diagnosis.
 """)
 
 if st.session_state.signal_percent is not None:
@@ -816,13 +798,13 @@ if st.session_state.signal_percent is not None:
 
         {explain_percentage_risk(st.session_state.signal_percent)}
 
-        🔬 This percentage reflects **relative ADR signal strength**,  
+        This percentage reflects **relative ADR signal strength**,  
         not a guarantee that side effects will occur.
         """
     )
 else:
     st.info(
-        "Click **🚀 Predict ADR Risk** to generate a percentage-based explanation."
+        "Click **Predict ADR Risk** to generate a percentage-based explanation."
     )
 
 
@@ -830,16 +812,8 @@ else:
 # -------------------------------------------------
 # Sidebar (UNCHANGED)
 # -------------------------------------------------
-st.sidebar.header("⚙️ User Settings")
-eli12 = st.sidebar.checkbox("🧒 Explain Simply (ELI12 Mode)")
-user_role = st.sidebar.radio(
-    "Select your role:",
-    ["Clinician (Brief View)", "Researcher (Detailed)", "Pharmacovigilance Analyst"]
-)
-
-show_model_explanation = st.sidebar.checkbox("Show model explanation", value=True)
 show_raw_values = st.sidebar.checkbox("Show raw omics values", value=False)
-with st.sidebar.expander("🧑 Patient Details", expanded=True):
+with st.sidebar.expander("Patient Details", expanded=True):
     age = st.number_input("Age (years)", 18, 90, 35)
     sex = st.selectbox("Sex", ["Female", "Male", "Other"])
     weight = st.number_input("Weight (kg)", 30, 150, 60)
@@ -853,7 +827,7 @@ st.sidebar.info(f"""
 **Features:** {len(EXPECTED_FEATURES)}  
 **Last Updated:** {datetime.now().strftime('%Y-%m-%d')}
 """)
-st.markdown("### 🧠 Risk Evaluation Summary")
+st.markdown("### Risk Evaluation Summary")
 
 if st.session_state.signal_score is not None:
     st.markdown(f"""
@@ -863,16 +837,16 @@ if st.session_state.signal_score is not None:
 
     if st.session_state.risk_reasons:
         st.markdown("**Factors influencing this prediction:**")
-        st.markdown("### 🧠 Key Contributors to This Risk")
+        st.markdown("### Key Contributors to This Risk")
         for r in st.session_state.risk_reasons:
             st.markdown(f"• {r}")
 
 else:
-    st.info("Click **🚀 Predict ADR Risk** to generate a prediction.")
+    st.info("Click **Predict ADR Risk** to generate a prediction.")
 
-st.sidebar.markdown("### 🧬 Patient Omics (Optional)")
+st.sidebar.markdown("### Patient Omics (Optional)")
 # -------- PROTEOMICS --------
-with st.sidebar.expander("🧫 Proteomics"):
+with st.sidebar.expander("Proteomics"):
     sert_protein = st.selectbox(
         "SERT Protein Availability",
         ["Low", "Normal", "High"],
@@ -886,7 +860,7 @@ with st.sidebar.expander("🧫 Proteomics"):
     )
 
 # -------- MICROBIOME --------
-with st.sidebar.expander("🦠 Gut Microbiome"):
+with st.sidebar.expander("Gut Microbiome"):
     gut_microbiome = st.selectbox(
         "Gut Microbiome Balance",
         ["Healthy", "Moderate Dysbiosis", "Severe Dysbiosis"],
@@ -895,7 +869,7 @@ with st.sidebar.expander("🦠 Gut Microbiome"):
 
 
 # -------- EPIGENOMICS --------
-with st.sidebar.expander("🧬 Epigenomics"):
+with st.sidebar.expander("Epigenomics"):
     epigenetic_silencing = st.slider(
         "Epigenetic Silencing Index",
         0.0, 1.0, 0.3
@@ -939,62 +913,37 @@ sert_expression = st.sidebar.selectbox(
     ["Low", "Normal", "High"],
     index=1
 )
-st.sidebar.markdown("### 🎨 Appearance")
-
-theme = st.sidebar.radio(
-    "Theme mode",
-    ["🌙 Dark (Research)", "☀️ Light (Publication)"],
-    index=0
-)
-
-theme_value = "dark" if "Dark" in theme else "light"
-
-components.html(
-    f"""
-    <script>
-        document.documentElement.setAttribute(
-            "data-theme", "{theme_value}"
-        );
-    </script>
-    """,
-    height=0,
-)
-
-pdf_mode = st.sidebar.checkbox("📄 Publication / PDF Mode")
-if pdf_mode:
-    components.html("""
-        <script>
-            document.documentElement.setAttribute("data-export","pdf");
-        </script>
-    """, height=0)
-
 
 # -------------------------------------------------
 # Tabs (UNCHANGED)
 # -------------------------------------------------
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
-    "📊 Risk Overview",
-    "🧬 Genomics",
-    "🔬 Omics Features",
-    "📋 ADR Evidence",
-    "📈 Performance & SHAP",
-    "🔍 Model Explanation",
-    "📖 Background",
-    "🗂 Prediction History",
-    "🤖 AI Clinical Assistant"
+    "Risk Overview",
+    "Genomics",
+    "Omics Features",
+    "ADR Evidence",
+    "Performance & SHAP",
+    "Model Explanation",
+    "Background",
+    "Prediction History",
+    "AI Clinical Assistant"
 ])
 
 # =================================================
-# TAB 1 — RISK OVERVIEW (FIXED & CORRECT)
+# TAB 1 — RISK SUMMARY (ACADEMIC VERSION)
 # =================================================
 with tab1:
+
     st.subheader("ADR Risk Assessment")
 
-    if st.button("🚀 Predict ADR Risk"):
+    # -------------------------------------------------
+    # PREDICTION BUTTON (Computation only)
+    # -------------------------------------------------
+    if st.button("Predict ADR Risk"):
 
-        # ------------------------------------
-        # Build model input (CRITICAL STEP)
-        # ------------------------------------
+        # -----------------------------
+        # Build model input
+        # -----------------------------
         st.session_state.model_input = build_feature_vector(
             expected_features=EXPECTED_FEATURES,
             age=age,
@@ -1009,868 +958,595 @@ with tab1:
             cyp2c19_status=cyp2c19_status,
             cyp2d6_status=cyp2d6_status,
             sert_expression=sert_expression
-            )
+        )
 
-        assert st.session_state.model_input.shape[1] == len(EXPECTED_FEATURES)
-        # ------------------------------------
-        # Model prediction (LightGBM Booster)
-        # ------------------------------------
-        base_prob = float(
-            model.predict(st.session_state.model_input)[0])
-        # ------------------------------------
-        # SHAP computation (POST prediction)
-        # ------------------------------------
+        base_prob = float(model.predict(st.session_state.model_input)[0])
+
+        # -----------------------------
+        # SHAP
+        # -----------------------------
         try:
             shap_vals = explainer.shap_values(st.session_state.model_input)
             st.session_state.shap_vals = shap_vals
-        except Exception as e:
+        except Exception:
             st.session_state.shap_vals = None
+
         final_prob, reasons = apply_patient_risk_adjustment(
-        base_prob=base_prob,
-        age=age,
-        sex=sex,
-        dose=dose,
-        polypharmacy=polypharmacy,
-        liver_disease=liver_disease,
-        sert_protein=sert_protein,
-        p_gp_activity=p_gp_activity,
-        gut_microbiome=gut_microbiome,
-        epigenetic_silencing=epigenetic_silencing
-        )
-
-        signal_score = final_prob
-        days, gi_curve, cns_curve = generate_adr_timeline(signal_score)
-
-        # Derive detailed risk profiles
-        risk_profiles = derive_risk_profiles(signal_score)
-
-        # Estimate ADR timeline
-        adr_timeline = estimate_adr_timeline(signal_score)
-
-        # Generate counterfactual advice
-        risk_advice = generate_risk_reduction_advice(
+            base_prob=base_prob,
             age=age,
+            sex=sex,
             dose=dose,
             polypharmacy=polypharmacy,
-            liver_disease=liver_disease
+            liver_disease=liver_disease,
+            sert_protein=sert_protein,
+            p_gp_activity=p_gp_activity,
+            gut_microbiome=gut_microbiome,
+            epigenetic_silencing=epigenetic_silencing
         )
 
-        confidence = abs(signal_score - 0.5) * 2
+        st.session_state.signal_score = final_prob
+        st.session_state.signal_percent = round(final_prob * 100, 1)
 
+        confidence = abs(final_prob - 0.5) * 2
         if confidence > 0.6:
-            conf_label = "High confidence"
+            st.session_state.conf_label = "High confidence"
         elif confidence > 0.3:
-            conf_label = "Moderate confidence"
+            st.session_state.conf_label = "Moderate confidence"
         else:
-            conf_label = "Low confidence"
+            st.session_state.conf_label = "Low confidence"
 
-        st.session_state.conf_label = conf_label
+    # -------------------------------------------------
+    # DISPLAY RESULTS (Clean Layout)
+    # -------------------------------------------------
+    if st.session_state.get("signal_score") is not None:
 
-        try:
-            conn = get_connection()
-        except Exception as e:
-            st.error("Database unavailable.")
-            st.stop()
+        signal_score = st.session_state.signal_score
+        risk_label, _, _ = get_risk_category(signal_score)
 
-        conn.execute("""
-        INSERT INTO predictions 
-        (age, sex, dose, polypharmacy, liver_disease,
-         sert_protein, p_gp_activity, gut_microbiome, epigenetic_silencing,
-         adr_score, confidence, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            age,
-            sex,
-            dose,
-            int(polypharmacy),
-            int(liver_disease),
-            sert_protein,
-            p_gp_activity,
-            gut_microbiome,
-            epigenetic_silencing,
-            signal_score,
-            confidence,
-            datetime.now().isoformat()))
+        # -----------------------------
+        # CORE METRICS
+        # -----------------------------
+        st.subheader("1. Summary Metrics")
 
-        conn.commit()
-        conn.close()
+        col1, col2, col3 = st.columns(3)
+        col1.metric("ADR Signal (%)", f"{st.session_state.signal_percent}%")
+        col2.metric("Risk Classification", risk_label)
+        col3.metric("Model Confidence", st.session_state.conf_label)
 
+        st.divider()
 
-        # Store in session
-        st.session_state.signal_score = signal_score
-        st.session_state.risk_reasons = reasons
+        # -----------------------------
+        # ORGAN DISTRIBUTION
+        # -----------------------------
+        st.subheader("2. Multisystem ADR Risk Attribution")
 
-        # Interpret signal
-        risk_label, risk_icon, risk_class = get_risk_category(signal_score)
-        components.html(
-                              f"""
-                              <script>
-                                         document.documentElement.setAttribute(
-                                                   "data-risk", "{risk_class}"
-                                         );
-                              </script>
-                              """,
-                              height=0,
-                     )
-
-        # ------------------------------------
-        # SHAP → Natural language explanation
-        # ------------------------------------
-        if st.session_state.shap_vals is not None:
-            shap_values = (
-                st.session_state.shap_vals[1]
-                if isinstance(st.session_state.shap_vals, list)
-                else st.session_state.shap_vals
-            )
-
-            explanations = shap_to_natural_language(
-                shap_values=shap_values,
-                feature_names=EXPECTED_FEATURES,
-                feature_values=st.session_state.model_input.iloc[0].values,
-                top_k=6    
-            )
-        else:
-            explanations = [
-                "• SHAP explanation unavailable for this prediction."
-                ]
-        st.session_state.explanations = explanations
-
-        
-        st.subheader("🩺 Clinical Interpretation Summary")
-
-        if signal_score >= 0.8:
-            st.error(
-                "High ADR risk detected. Consider dose reduction, enhanced monitoring, "
-                "and review for drug–drug interactions.")
-        elif signal_score >= 0.5:
-            st.warning(
-                "Moderate ADR risk detected. Monitor closely during initiation "
-                "and dose escalation."
-                )
-        else:
-            st.success(
-                "Low ADR risk detected. Standard monitoring is likely sufficient."
-                )
-
-        if st.sidebar.checkbox("🛠 Debug mode"):
-            st.write({"base_prob": base_prob, "final_prob": signal_score})
-        st.session_state.signal_percent = round(signal_score * 100, 1)
-
-        # Confidence proxy based on distance from 0.5
-        st.metric(label="Prediction Confidence",value=st.session_state.conf_label,delta=f"{confidence:.2f}")
-
-        st.metric("GI ADR Risk", f"{risk_profiles['GI_ADR_Risk']:.2f}")
-        st.metric("CNS ADR Risk", f"{risk_profiles['CNS_ADR_Risk']:.2f}")
-        st.metric("Sexual ADR Risk", f"{risk_profiles['Sexual_ADR_Risk']:.2f}")
-        st.metric("Serious ADR Risk", f"{risk_profiles['Serious_ADR_Risk']:.2f}")
-        tooltip(
-            "📊 ADR Signal Strength",
-            "Represents the relative strength of the predicted adverse drug reaction signal. "
-            "Higher values indicate stronger pharmacovigilance concern."
-        )
-        st.metric(label="",value=f"{st.session_state.signal_percent}%")
-        st.metric("Expected ADR Onset", estimate_adr_timeline(signal_score))
-        st.markdown("### 📄 Export Report")
-
-        if st.session_state.signal_score is not None:
-            patient_info = {
-                "Age": age,
-                "Sex": sex,
-                "Dose (mg/day)": dose,
-                "Polypharmacy": polypharmacy,
-                "Liver disease": liver_disease
-                }
-
-            pdf_buffer = generate_pdf_report(
-                patient_info=patient_info,
-                risk_score=st.session_state.signal_score,
-                risk_category=get_risk_category(st.session_state.signal_score)[0],
-                explanations=st.session_state.explanations,
-                confidence_label=st.session_state.conf_label
-            )
-
-            st.download_button(
-                label="⬇️ Download PDF Report",
-                data=pdf_buffer,
-                file_name="sertraline_adr_risk_report.pdf",
-                mime="application/pdf"
-            )
-            
-
-
-
-
-        st.caption(
-            "Prediction confidence reflects the distance of the risk score from the decision boundary (0.5). "
-            "Lower confidence indicates greater uncertainty and the need for clinical judgment.")
-
-
-        # ------------------------------------
-        # Risk banner
-        # ------------------------------------
-        st.markdown(
-            f"""
-            <div class="risk-banner {risk_class}">
-                <div class="risk-label-main">
-                    {risk_icon} {risk_label}
-                </div>
-                <div class="risk-prob-chip">
-                    ADR Signal Score: <b>{signal_score:.3f}</b>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        if eli12:
-            st.info(
-                "🧠 Simple explanation:\n\n"
-                "This score tells how likely side effects are. "
-                "A moderate score means side effects are possible, "
-                "but they are usually manageable with monitoring."
-            )
-
-        st.markdown("""### 🔎 Risk Interpretation Guide
-        - 🟢 **Low Priority Signal**: Routine monitoring
-        - 🟠 **Moderate Priority Signal**: Closer follow-up recommended
-        - 🔴 **High Priority Signal**: Increased ADR vigilance required
-        Scores reflect **relative risk**, not absolute probability.""")
-        
-        st.markdown("### 📊 ADR Risk Breakdown")
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        col1.metric("GI ADR Risk", f"{risk_profiles['GI_ADR_Risk']:.2f}")
-        col2.metric("CNS ADR Risk", f"{risk_profiles['CNS_ADR_Risk']:.2f}")
-        col3.metric("Sexual ADR Risk", f"{risk_profiles['Sexual_ADR_Risk']:.2f}")
-        col4.metric("Serious ADR Risk", f"{risk_profiles['Serious_ADR_Risk']:.2f}")
-        
-        st.markdown("### 📊 Patient ADR Timeline (Expected Pattern)")
-        timeline_fig = go.Figure()
-        timeline_fig.add_trace(go.Scatter(
-            x=days,
-            y=gi_curve,
-            mode="lines+markers",
-            name="GI ADR Risk"
-        ))
-
-        timeline_fig.add_trace(go.Scatter(
-            x=days,
-            y=cns_curve,
-            mode="lines+markers",
-            name="CNS ADR Risk"
-        ))
-
-        timeline_fig.update_layout(
-            xaxis_title="Days After Starting Sertraline",
-            yaxis_title="Relative ADR Risk",
-            yaxis=dict(range=[0, 1]),
-            height=400,
-            template="plotly_dark"
-        )
-
-        st.markdown('<div id="timeline-plot">', unsafe_allow_html=True)
-        st.plotly_chart(timeline_fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        if st.button("🧠 Explain this graph", key="explain_timeline"):
-            st.session_state.chat_input_prefill = "Explain the ADR timeline plot"
-            st.session_state.highlight_graph = "timeline-plot"
-
-
-        st.markdown("### ⏱️ Expected ADR Timeline")
-        st.info(adr_timeline)
-        st.markdown("""
-        **How to read this timeline:**
-        - Day 0: Start of medication
-        - Day 7: GI side effects often peak early
-        - Day 30: CNS effects stabilize over time
-        """)
-        if eli12:
-            st.info(
-                "Side effects usually appear early, settle down, "
-                "and the body adjusts after a few weeks."
-            )
-
-
-
-        st.markdown("### 🔄 How to Reduce ADR Risk")
-
-        for item in risk_advice:
-            st.write("•", item)
-        
-        st.markdown("### 📈 Signal Evolution Timeline")
-
-        risk_level = get_risk_category(st.session_state.signal_score)[2]
-
-        st.markdown('<div class="risk-timeline reveal">', unsafe_allow_html=True)
-
-        levels = ["low", "moderate", "high"]
-        for lvl in levels:
-            active = False
-            if risk_level == "risk-low" and lvl == "low":
-                active = True
-            if risk_level == "risk-moderate" and lvl in ["low", "moderate"]:
-                active = True
-            if risk_level == "risk-high":
-                active = True
-
-            cls = f"risk-node active-{lvl}" if active else "risk-node"
-            st.markdown(f'<div class="{cls}"></div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="timeline-labels">
-            <span>Baseline</span>
-            <span>Exposure</span>
-            <span>Signal</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # ------------------------------------
-        # Organ-specific risk radar
-        # ------------------------------------
         organ_risks = get_organ_specific_risks(signal_score)
-        
-        fig = go.Figure(
+
+        radar_fig = go.Figure(
             go.Scatterpolar(
                 r=list(organ_risks.values()),
                 theta=list(organ_risks.keys()),
                 fill="toself"
             )
         )
-        fig.update_layout(
+
+        radar_fig.update_layout(
             polar=dict(radialaxis=dict(range=[0, 1])),
-            showlegend=False
+            showlegend=False,
+            template="plotly_dark" if theme_value == "dark" else "simple_white",
+            height=380
         )
-        st.markdown('<div id="organ-risk-graph">', unsafe_allow_html=True)
-        # your radar plot code here
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        if st.button("🧠 Explain this graph", key="explain_organ_risk"):
-                             st.session_state.chat_input_prefill = "Explain the organ risk radar plot"
-                             st.session_state.highlight_graph = "organ-risk-graph"
-   
+
+        st.plotly_chart(radar_fig, use_container_width=True)
+
+        st.divider()
+
+        # -----------------------------
+        # TEMPORAL PROJECTION
+        # -----------------------------
+        st.subheader("3. Temporal Projection of ADR Probability")
+
+        days, gi_curve, cns_curve = generate_adr_timeline(signal_score)
+
+        timeline_fig = go.Figure()
+        timeline_fig.add_trace(go.Scatter(x=days, y=gi_curve, mode="lines", name="GI"))
+        timeline_fig.add_trace(go.Scatter(x=days, y=cns_curve, mode="lines", name="CNS"))
+
+        timeline_fig.update_layout(
+            xaxis_title="Days After Sertraline Initiation",
+            yaxis_title="Relative ADR Probability",
+            yaxis=dict(range=[0, 1]),
+            template="plotly_dark" if theme_value == "dark" else "simple_white",
+            height=380
+        )
+
+        st.plotly_chart(timeline_fig, use_container_width=True)
+
+        st.divider()
+
+        # -----------------------------
+        # INTERPRETATION
+        # -----------------------------
+        st.subheader("4. Clinical Interpretation")
+
+        if signal_score >= 0.8:
+            st.error("High ADR risk. Enhanced monitoring and dose reassessment recommended.")
+        elif signal_score >= 0.5:
+            st.warning("Moderate ADR risk. Close monitoring during initiation advised.")
+        else:
+            st.success("Low ADR risk. Standard clinical monitoring likely sufficient.")
+
         if eli12:
             st.info(
-                "Each point shows how sensitive a body system may be. "
-                "A bigger shape means that area may feel side effects more."
+                "This score estimates how likely side effects may occur. "
+                "Higher values suggest closer follow-up is needed."
             )
 
-        st.markdown("""
-        ### 🕸️ How to Interpret the Organ-System Radar
+        st.divider()
 
-        - Each axis represents a physiological system
-        - Values closer to the outer edge indicate **higher relative susceptibility**
-        - The radar does **not** represent absolute toxicity
-        - It shows how risk is **distributed across organ systems** for this patient""")
-        st.markdown("### 🔄 Risk Reduction Suggestions")
+        # -----------------------------
+        # EXPORT
+        # -----------------------------
+        st.subheader("5. Export Report")
 
-        if dose >= 100:
-            st.write("⬇️ Reducing dose to 50 mg may lower risk")
-        if polypharmacy:
-            st.write("💊 Review concomitant medications")
-           
+        patient_info = {
+            "Age": age,
+            "Sex": sex,
+            "Dose (mg/day)": dose,
+            "Polypharmacy": polypharmacy,
+            "Liver disease": liver_disease
+        }
 
-        st.caption("Radar plot shows relative organ-system susceptibility based on predicted ADR signal.")
-        if st.session_state.signal_score is not None:
-            st.write("Model input preview:")
-            st.dataframe(st.session_state.model_input.iloc[:, :10])
-        
-        # ------------------------------------
-        # Dose–Risk Relationship
-        # ------------------------------------
-        st.subheader("📈 Dose–Risk Relationship")
-        dose_range = [25, 50, 100, 150]
-        dose_risks = []
+        pdf_buffer = generate_pdf_report(
+            patient_info=patient_info,
+            risk_score=signal_score,
+            risk_category=risk_label,
+            explanations=st.session_state.get("explanations", []),
+            confidence_label=st.session_state.conf_label
+        )
 
-        for d in dose_range:
-            X_tmp = build_feature_vector(
-                expected_features=EXPECTED_FEATURES,
-                age=age,
-                sex=sex,
-                dose=d,
-                polypharmacy=polypharmacy,
-                liver_disease=liver_disease,
-                neuroinflammation=neuroinflammation,
-                oxidative_stress=oxidative_stress,
-                bbb_integrity=bbb_integrity,
-                cytokine_activity=cytokine_activity,
-                cyp2c19_status=cyp2c19_status,
-                cyp2d6_status=cyp2d6_status,
-                sert_expression=sert_expression
-            )
-            dose_risks.append(float(model.predict(X_tmp)[0]))
-
-        dose_fig = px.line(
-            x=dose_range,
-            y=dose_risks,
-            markers=True,
-            labels={
-                "x": "Sertraline Dose (mg/day)",
-                "y": "Predicted ADR Risk Score"
-            },
-            title="Predicted ADR Risk vs Dose")
-
-        st.plotly_chart(dose_fig, use_container_width=True)
+        st.download_button(
+            label="Download PDF Report",
+            data=pdf_buffer,
+            file_name="sertraline_adr_risk_report.pdf",
+            mime="application/pdf"
+        )
 
         st.caption(
-            "This curve illustrates how ADR risk is expected to change with dose escalation, "
-            "holding all other patient factors constant.")
-        
-        if show_model_explanation and st.session_state.signal_score is not None:
-            st.markdown(
-                """
-                <div class="ai-panel">
-                    <div class="ai-title">🧠 Model Reasoning Summary</div>
-                    <div class="ai-subtitle">
-                        Interpretable explanation based on learned feature contributions
-                    </div>
-                    <div class="ai-point">• Signal driven by dose intensity and polypharmacy</div>
-                    <div class="ai-point">• Age-related pharmacokinetic sensitivity detected</div>
-                    <div class="ai-point">• Proteomic SERT elevation contributes to serotonergic risk</div>
-                    <div class="ai-point">• P-gp activity modulates CNS exposure</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-            with tab1:
-                st.session_state.active_tab = "Risk Overview"
+            "Confidence reflects the distance of the predicted score "
+            "from the decision threshold (0.5)."
+        )
 
 # =================================================
-# REMAINING TABS
-# =================================================
-# 👉 Tabs 2–6 remain IDENTICAL to your original code
-# 👉 No logic changes were required
-# 👉 You can paste them as-is below this point
-
-# =================================================
-# TAB 2 — GENOMICS
+# TAB 2 — PHARMACOGENOMIC PROFILE (ACADEMIC)
 # =================================================
 with tab2:
-    st.subheader("Pharmacogenomic Profile")
-    
+
+    st.subheader("Pharmacogenomic Risk Profile")
+
     st.markdown("""
-    The following pharmacogenes are known to influence sertraline metabolism, efficacy, and ADR risk. 
-    Your omics data suggests the phenotypes below:
+    This section summarizes pharmacogenomic determinants influencing 
+    sertraline pharmacokinetics, pharmacodynamics, and adverse drug reaction (ADR) susceptibility.
+    Phenotypic classifications are derived from integrated omics signals 
+    and model-informed inference.
     """)
-    
-    try:
-        probability = (
-            st.session_state.signal_score
-            if st.session_state.signal_score is not None
-            else 0.5
-            )
-    except:
-        probability = 0.5
-    
+
+    # -------------------------------------------------
+    # Risk-based probability reference
+    # -------------------------------------------------
+    probability = (
+        st.session_state.signal_score
+        if st.session_state.get("signal_score") is not None
+        else 0.5
+    )
+
     genes_info = get_pharmacogene_info(probability)
-    
-    # Pharmacogenes in cards
-    gene_cols = st.columns(2)
+
+    st.divider()
+
+    # -------------------------------------------------
+    # Gene-level Summary
+    # -------------------------------------------------
+    st.subheader("1. Gene-Level Phenotypic Interpretation")
+
+    col1, col2 = st.columns(2)
+
     for idx, (gene_name, gene_data) in enumerate(genes_info.items()):
-        with gene_cols[idx % 2]:
+        with (col1 if idx % 2 == 0 else col2):
             st.markdown(f"""
-            <div class="pathway-card">
-            <b>{gene_data['icon']} {gene_name} ({gene_data['relevance']})</b><br>
-            <small><b>Phenotype:</b> {gene_data['phenotype']}<br>
-            <b>Implication:</b> {gene_data['implication']}</small>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Gene-to-pathway mapping
-    st.subheader("Gene → Pathway → ADR Mechanism")
-    
+            **{gene_name}**  
+            *Functional Relevance:* {gene_data['relevance']}  
+
+            **Predicted Phenotype:** {gene_data['phenotype']}  
+
+            **Clinical Implication:**  
+            {gene_data['implication']}
+            """)
+
+            st.markdown("---")
+
+    # -------------------------------------------------
+    # Mechanistic Mapping
+    # -------------------------------------------------
+    st.subheader("2. Gene → Pathway → ADR Mechanistic Mapping")
+
     pathways = {
-        "CYP2C19 → Sertraline Metabolism": {
-            "description": "CYP2C19 is the primary enzyme metabolizing sertraline. Poor metabolizers accumulate higher plasma levels.",
-            "adr_link": "↑ Plasma exposure → ↑ Serotonergic activity → GI, CNS, QT effects"
+        "CYP2C19 — Hepatic Biotransformation": {
+            "description": (
+                "CYP2C19 is a primary enzyme responsible for hepatic metabolism "
+                "of sertraline. Reduced enzymatic activity may increase systemic exposure."
+            ),
+            "adr_link": (
+                "Reduced clearance → Elevated plasma concentration → "
+                "Enhanced serotonergic signaling → Increased GI, CNS, and QT-related ADR risk."
+            )
         },
-        "SLC6A4 → SERT Expression": {
-            "description": "Serotonin transporter (SERT) is sertraline's primary target. Genetic variations affect expression levels.",
-            "adr_link": "Variable SERT expression → Variable serotonergic blockade → ↑/↓ Response & ADRs"
+        "SLC6A4 — Serotonin Transporter (SERT)": {
+            "description": (
+                "SLC6A4 encodes the serotonin transporter, the principal pharmacodynamic "
+                "target of sertraline."
+            ),
+            "adr_link": (
+                "Altered transporter expression → Modified serotonergic blockade → "
+                "Variability in therapeutic response and adverse effect susceptibility."
+            )
         },
-        "HTR2A → Post-synaptic Signaling": {
-            "description": "Serotonin 2A receptor. Polymorphisms associate with treatment response and adverse effects.",
-            "adr_link": "Altered signaling → Changes in mood regulation, sexual function, GI motility"
+        "HTR2A — Post-Synaptic Receptor Signaling": {
+            "description": (
+                "HTR2A encodes the serotonin 2A receptor, influencing downstream "
+                "signal transduction pathways associated with mood regulation and autonomic control."
+            ),
+            "adr_link": (
+                "Receptor polymorphisms → Altered neurotransmission dynamics → "
+                "Changes in mood, sexual function, and gastrointestinal motility."
+            )
         }
     }
-    
+
     for pathway_name, pathway_info in pathways.items():
-        with st.expander(f"🔗 {pathway_name}"):
+        with st.expander(pathway_name):
             st.markdown(f"""
-            **Biological Mechanism:**\n
+            **Biological Mechanism**  
             {pathway_info['description']}
-            
-            **Link to ADR Risk:**\n
+
+            **Implication for ADR Risk**  
             {pathway_info['adr_link']}
             """)
-    
-    st.markdown("---")
-    st.info(
-        "**Note:** Pharmacogene phenotypes shown are derived from omics summaries and integrated predictions. "
-        "For clinical decision-making, confirmatory genotyping is recommended."
+
+    st.divider()
+
+    st.caption(
+        "Pharmacogenomic interpretations presented here are model-informed and "
+        "should be validated through confirmatory genotyping prior to clinical application."
     )
 
 # =================================================
-# TAB 3 — OMICS FEATURES (DEEP MOLECULAR DATA)
+# TAB 3 — MULTI-OMICS INTEGRATION (ACADEMIC)
 # =================================================
 with tab3:
-    st.subheader("Omics & Biomarker Integration")
-    st.markdown("""
-    ### 🧬 What does “Omics” mean in this tool?
 
-    **Omics** refers to large-scale biological signals that influence how a patient
-    responds to sertraline and experiences adverse drug reactions (ADRs).
-
-    This portal integrates **four biological layers**:
-
-    1. **Transcriptomics** – gene activity
-    2. **Proteomics** – functional drug targets
-    3. **Metabolomics** – downstream chemical changes
-    4. **Systems-level biology** – inflammation, BBB, CNS effects
-
-    Each layer contributes **independently and interactively** to ADR risk.
-    """)
+    st.subheader("Multi-Omics & Biomarker Integration")
 
     st.markdown("""
-    Omics features represent system-level biological alterations associated with sertraline exposure and ADRs. 
-    These include transcriptomic, proteomic, and metabolomic signatures aggregated into clinically relevant categories.
+    This module integrates transcriptomic, proteomic, metabolomic, 
+    and systems-level biological signals associated with sertraline exposure.
+    
+    The framework models how multi-layer molecular perturbations 
+    contribute to adverse drug reaction (ADR) susceptibility.
     """)
-    
-    # Omics data tabs
-    omics_subtabs = st.tabs(["📊 Transcriptomics", "🧪 Metabolomics", "🔗 Multi-Omics Clusters"])
-    
-    with omics_subtabs[0]:
-        st.markdown("### Transcriptomic Pathways")
-        st.markdown("""
-        Gene expression patterns associated with sertraline response and toxicity:
-        """)
-        
-        transcriptomic_pathways = {
-            "Serotonergic Neurotransmission": {"status": "↑ Upregulated", "badge_class": "omics-up", "meaning": "Enhanced SERT signaling; expected"},
-            "Neuroinflammation": {"status": "↑ Moderately Upregulated", "badge_class": "omics-up", "meaning": "Mild innate immune activation; associated with ADRs"},
-            "Oxidative Stress Response": {"status": "↓ Downregulated", "badge_class": "omics-down", "meaning": "Reduced antioxidant defense; potential concern"},
-            "Apoptosis Regulation": {"status": "~Normal", "badge_class": "omics-up", "meaning": "No apparent dysregulation"},
-            "Blood-Brain Barrier Integrity": {"status": "↓ Slightly Downregulated", "badge_class": "omics-down", "meaning": "Minor BBB permeability increase; CNS penetration enhanced"}
+
+    probability = (
+        st.session_state.signal_score
+        if st.session_state.get("signal_score") is not None
+        else 0.5
+    )
+
+    st.divider()
+
+    # =================================================
+    # 1. TRANSCRIPTOMICS
+    # =================================================
+    st.subheader("1. Transcriptomic Layer — Gene Expression Modulation")
+
+    transcriptomic_pathways = {
+        "Serotonergic Neurotransmission": {
+            "status": "Upregulated",
+            "meaning": "Enhanced SERT signaling; increased serotonergic activity"
+        },
+        "Neuroinflammation": {
+            "status": "Moderately Upregulated",
+            "meaning": "Innate immune activation associated with GI/CNS ADR risk"
+        },
+        "Oxidative Stress Response": {
+            "status": "Downregulated",
+            "meaning": "Reduced antioxidant buffering capacity"
+        },
+        "Blood–Brain Barrier Integrity": {
+            "status": "Slightly Downregulated",
+            "meaning": "Potential increase in CNS drug penetration"
         }
-        
-        for pathway, info in transcriptomic_pathways.items():
-            st.markdown(f"""
-            <div class="pathway-card">
-            <b>{pathway}</b><br>
-            <span class="omics-badge {info['badge_class']}">{info['status']}</span><br>
-            <small>{info['meaning']}</small>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        if show_raw_values:
-            st.markdown("**Raw Transcriptomic Values:**")
-            st.dataframe(omics_df[["transcriptomic_pathway_1", "transcriptomic_pathway_2"]].head(), use_container_width=True)
-        st.markdown("""
-        ## 🧬 Transcriptomics — Gene Expression Layer
-        Transcriptomics captures **which genes are turned up or down** after sertraline exposure.
-        Changes in gene expression can:
-        - amplify inflammation
-        - alter neurotransmission
-        - weaken blood–brain barrier integrity
-        These effects strongly influence **GI, CNS, and neuropsychiatric ADRs**.
-        """)
-        st.table(pd.DataFrame({
-            "Pathway": [
-                "Neuroinflammation",
-                "Serotonergic signaling",
-                "Oxidative stress response",
-                "Blood–brain barrier integrity"
-                ],
-            "Observed Change": [
-                "Upregulated",
-                "Upregulated",
-                "Downregulated",
-                "Mild disruption"
-                  ],
-            "Clinical Meaning": [
-                "Higher GI/CNS ADR risk",
-                "Increased serotonergic ADRs",
-                "Reduced cellular protection",
-                "Enhanced CNS drug penetration"
-                ]
-        }))
-        st.markdown("""
-        ## 🧫 Proteomics — Functional Drug Target Layer
-        Proteomics reflects **protein abundance and activity**, which directly determines
-        how sertraline behaves in the body.
+    }
 
-        Unlike genes, proteins are the **actual molecular targets** of drugs.
-        """)
-        st.table(pd.DataFrame({
-            "Protein": ["SERT (SLC6A4)", "HTR2A", "Albumin", "ABCB1 (P-gp)"],
-            "Role": [
-                "Primary drug target",
-                "Serotonin receptor",
-                "Protein binding",
-                "Brain efflux transporter"
-                ],
-            "ADR Impact": [
-                "CNS & GI ADRs",
-                "Sexual dysfunction, insomnia",
-                "Higher free drug levels",
-                "Altered CNS exposure"
-                ]
-        }))
+    st.table(pd.DataFrame({
+        "Pathway": transcriptomic_pathways.keys(),
+        "Observed Regulation": [v["status"] for v in transcriptomic_pathways.values()],
+        "Clinical Interpretation": [v["meaning"] for v in transcriptomic_pathways.values()]
+    }))
 
-        st.markdown("""
-        ## 🧪 Metabolomics — Downstream Chemical Effects
+    if show_raw_values:
+        st.markdown("**Raw Transcriptomic Features:**")
+        st.dataframe(
+            omics_df[
+                ["transcriptomic_pathway_1", "transcriptomic_pathway_2"]
+            ].head(),
+            use_container_width=True
+        )
 
-        Metabolomics reflects **biochemical consequences** of sertraline exposure.
+    st.divider()
 
-        Key affected pathways include:
-        - tryptophan metabolism
-        - serotonin synthesis
-        - kynurenine-mediated inflammation
-        """)
+    # =================================================
+    # 2. PROTEOMICS
+    # =================================================
+    st.subheader("2. Proteomic Layer — Functional Drug Targets")
 
-        st.markdown("""
-        ### 🔄 Key Metabolic Flow
+    st.table(pd.DataFrame({
+        "Protein": ["SERT (SLC6A4)", "HTR2A", "Albumin", "ABCB1 (P-gp)"],
+        "Functional Role": [
+            "Primary serotonin transporter target",
+            "Serotonin receptor signaling",
+            "Drug plasma protein binding",
+            "Blood–brain barrier efflux transporter"
+        ],
+        "ADR Relevance": [
+            "CNS & GI adverse effects",
+            "Sexual dysfunction, insomnia",
+            "Altered free drug fraction",
+            "Modified CNS drug exposure"
+        ]
+    }))
 
-        **Tryptophan**
-        → Serotonin ↑ → CNS stimulation  
-        → Kynurenine ↑ → Neuroinflammation → ADR risk
+    st.divider()
 
-        This explains why metabolomic imbalance often precedes clinical ADRs.
-        """)
+    # =================================================
+    # 3. METABOLOMICS
+    # =================================================
+    st.subheader("3. Metabolomic Layer — Downstream Biochemical Effects")
 
-        st.markdown("""
-        ### 🦠 Gut Microbiome (Proxy Layer)
+    metabolomic_data = get_metabolomic_profile(probability)
 
-        SSRIs interact with gut microbiota.
-        Dysbiosis increases:
-        • nausea
-        • diarrhea
-        • drug bioavailability
-        """)
+    st.table(pd.DataFrame({
+        "Metabolite": metabolomic_data.keys(),
+        "Direction": [v["direction"] for v in metabolomic_data.values()],
+        "Clinical Interpretation": [v["clinical_meaning"] for v in metabolomic_data.values()]
+    }))
 
+    if show_raw_values:
+        st.markdown("**Raw Metabolomic Features:**")
+        st.dataframe(
+            omics_df[
+                ["metabolite_serotonin", "metabolite_tryptophan"]
+            ].head(),
+            use_container_width=True
+        )
 
+    st.divider()
 
+    # =================================================
+    # 4. MULTI-OMICS CLUSTERING
+    # =================================================
+    st.subheader("4. Multi-Omics Phenotypic Clustering")
 
+    st.markdown("""
+    Unsupervised clustering of integrated omics features identifies 
+    molecular subtypes with distinct ADR susceptibility profiles.
+    """)
 
-
-    with omics_subtabs[1]:
-        st.markdown("### Metabolomic Signature")
-        
-        metabolomic_data = get_metabolomic_profile(probability)
-        
-        metabolite_cols = st.columns(1)
-        for metabolite, info in metabolomic_data.items():
-            direction_emoji = "📈" if info["direction"] == "↑" else "📉"
-            st.markdown(f"""
-            <div class="pathway-card">
-            {direction_emoji} <b>{metabolite}</b> {info['direction']}<br>
-            <small>{info['clinical_meaning']}</small>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        if show_raw_values:
-            st.markdown("**Raw Metabolomic Values:**")
-            st.dataframe(omics_df[["metabolite_serotonin", "metabolite_tryptophan"]].head(), use_container_width=True)
-    
-    with omics_subtabs[2]:
-        st.markdown("### Multi-Omics Patient Clusters")
-        
-        st.markdown("""
-        Unsupervised clustering of patient omics profiles identifies phenotypic subtypes with distinct ADR risks:
-        """)
-        
-        clusters = {
-            "Cluster A (High Inflammatory)": {
-                "prevalence": "~25%",
-                "traits": "↑ Cytokines, ↑ Acute phase proteins, ↑ Oxidative stress markers",
-                "adr_risk": "🔴 Higher GI, immune-mediated ADRs",
-                "recommendation": "Closer monitoring; consider inflammatory markers"
-            },
-            "Cluster B (Normal Profile)": {
-                "prevalence": "~50%",
-                "traits": "Normal metabolomic & transcriptomic profile",
-                "adr_risk": "🟢 Average ADR risk",
-                "recommendation": "Standard monitoring protocol"
-            },
-            "Cluster C (Impaired Metabolism)": {
-                "prevalence": "~15%",
-                "traits": "↓ Detoxification genes, ↑ Parent drug metabolites, ↑ Toxins",
-                "adr_risk": "🟠 Higher CNS, hepatic ADRs",
-                "recommendation": "Consider lower starting dose, frequent monitoring"
-            },
-            "Cluster D (High Responder)": {
-                "prevalence": "~10%",
-                "traits": "↑ SERT expression, ↑ Serotonin turnover, ↓ Stress markers",
-                "adr_risk": "🟢 Lower ADR risk, good response expected",
-                "recommendation": "Standard dosing; good candidate for sertraline"
-            }
+    clusters = {
+        "Cluster A — High Inflammatory Profile": {
+            "prevalence": "~25%",
+            "traits": "Elevated cytokines and oxidative stress markers",
+            "adr_risk": "Higher GI and immune-mediated ADR risk",
+            "recommendation": "Enhanced monitoring of inflammatory biomarkers"
+        },
+        "Cluster B — Normative Molecular Profile": {
+            "prevalence": "~50%",
+            "traits": "Balanced transcriptomic and metabolomic signals",
+            "adr_risk": "Average ADR risk",
+            "recommendation": "Standard monitoring"
+        },
+        "Cluster C — Impaired Metabolic Clearance": {
+            "prevalence": "~15%",
+            "traits": "Reduced detoxification gene activity",
+            "adr_risk": "Higher CNS and hepatic ADR risk",
+            "recommendation": "Consider lower starting dose"
+        },
+        "Cluster D — High Responder Phenotype": {
+            "prevalence": "~10%",
+            "traits": "Elevated SERT expression and serotonin turnover",
+            "adr_risk": "Lower ADR risk, favorable response",
+            "recommendation": "Standard dosing appropriate"
         }
-        
-        for cluster_name, cluster_data in clusters.items():
-            with st.expander(f"📊 {cluster_name} ({cluster_data['prevalence']})"):
-                st.markdown(f"""
-                **Traits:** {cluster_data['traits']}\n
-                **ADR Risk:** {cluster_data['adr_risk']}\n
-                **Recommendation:** {cluster_data['recommendation']}
-                """)
-    
-    st.markdown("---")
-    
-    # Full omics dataframe
-    if st.checkbox("Show all omics raw data"):
-        st.markdown("### Complete Omics Feature Matrix")
+    }
+
+    for cluster_name, cluster_data in clusters.items():
+        with st.expander(f"{cluster_name} ({cluster_data['prevalence']})"):
+            st.markdown(f"""
+            **Molecular Traits:**  
+            {cluster_data['traits']}
+
+            **ADR Risk Pattern:**  
+            {cluster_data['adr_risk']}
+
+            **Clinical Consideration:**  
+            {cluster_data['recommendation']}
+            """)
+
+    st.divider()
+
+    # =================================================
+    # RAW DATA (OPTIONAL)
+    # =================================================
+    if st.checkbox("Show Complete Omics Feature Matrix"):
         st.dataframe(omics_df, use_container_width=True)
-        
+
         st.download_button(
-            label="📥 Download Omics Data (CSV)",
+            label="Download Omics Data (CSV)",
             data=omics_df.to_csv(index=False),
             file_name="sertraline_omics_data.csv",
             mime="text/csv"
         )
-    st.markdown("""
-    ## 🧠 Systems-Level Integration
 
-    ADR risk does **not arise from a single biomarker**.
-
-    Instead, it emerges from interaction between:
-    - genetics
-    - protein targets
-    - metabolites
-    - inflammatory state
-
-    This system-level approach aligns with **modern precision pharmacology**.
-    """)
-
-
+    st.caption(
+        "ADR susceptibility emerges from integrated genomic, proteomic, "
+        "metabolomic, and inflammatory interactions. "
+        "This system-level framework reflects modern precision pharmacology."
+    )
 # =================================================
-# TAB 4 — ADR EVIDENCE & PHARMACOVIGILANCE
+# TAB 4 — PHARMACOVIGILANCE & ADR EVIDENCE (ACADEMIC)
 # =================================================
 with tab4:
-    st.subheader("Known ADRs: Evidence & Risk Stratification")
-    
+
+    st.subheader("Pharmacovigilance Evidence & ADR Risk Contextualization")
+
     st.markdown("""
-    Below is a comprehensive summary of sertraline ADRs compiled from pharmacovigilance databases (FAERS), 
-    clinical trials, and post-marketing surveillance. The predicted model risk is contextualized against 
-    real-world incidence data.
+    This section summarizes known adverse drug reactions (ADRs) associated with sertraline,
+    derived from clinical trials, post-marketing surveillance, and pharmacovigilance databases.
+    Model-derived predictions are contextualized against real-world incidence patterns.
     """)
-    
+
     common_adrs, serious_adrs = get_adr_evidence()
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### Common ADRs (Minor–Moderate Severity)")
-        
-        for adr_item in common_adrs:
-            st.markdown(f"""
-            <div class="pathway-card">
-            <b>{adr_item['adr']}</b><br>
-            📊 <b>Incidence:</b> {adr_item['incidence']} | 
-            📍 <b>Severity:</b> {adr_item['severity']}<br>
-            ⏱️ <b>Typical Onset:</b> {adr_item['onset']}
-            </div>
-            """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("### Serious ADRs (Rare but Important)")
-        
-        for adr_item in serious_adrs:
-            st.markdown(f"""
-            <div class="pathway-card">
-            <b>⚠️ {adr_item['adr']}</b><br>
-            🔴 <b>Risk:</b> {adr_item['risk']}<br>
-            <b>Trigger:</b> {adr_item['trigger']}<br>
-            <b>Mgmt:</b> {adr_item['management']}
-            </div>
-            """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Real-world comparison
-    st.subheader("📊 Real-World Signal Comparison")
-    
+
+    st.divider()
+
+    # =================================================
+    # 1. COMMON ADRs
+    # =================================================
+    st.subheader("1. Common ADRs (Mild–Moderate Severity)")
+
+    st.table(pd.DataFrame(common_adrs)[
+        ["adr", "incidence", "severity", "onset"]
+    ].rename(columns={
+        "adr": "Adverse Reaction",
+        "incidence": "Incidence",
+        "severity": "Severity",
+        "onset": "Typical Onset"
+    }))
+
+    st.divider()
+
+    # =================================================
+    # 2. SERIOUS ADRs
+    # =================================================
+    st.subheader("2. Serious ADRs (Low Frequency, High Impact)")
+
+    st.table(pd.DataFrame(serious_adrs)[
+        ["adr", "risk", "trigger", "management"]
+    ].rename(columns={
+        "adr": "Adverse Reaction",
+        "risk": "Risk Profile",
+        "trigger": "Trigger Factors",
+        "management": "Recommended Management"
+    }))
+
+    st.divider()
+
+    # =================================================
+    # 3. REAL-WORLD COMPARISON
+    # =================================================
+    st.subheader("3. Real-World Risk Stratification")
+
     probability = (
-    st.session_state.signal_score
-    if st.session_state.signal_score is not None
-    else 0.5)
+        st.session_state.signal_score
+        if st.session_state.get("signal_score") is not None
+        else 0.5
+    )
 
-
-    
-    # Simulate real-world cohort comparison
     comparison_data = pd.DataFrame({
-        "ADR Type": ["Nausea/GI", "CNS (dizziness, insomnia)", "Sexual Dysfunction", "Other"],
+        "ADR Type": [
+            "Gastrointestinal",
+            "Central Nervous System",
+            "Sexual Dysfunction",
+            "Other"
+        ],
         "Population Baseline (%)": [20, 12, 25, 15],
-        "Your Predicted Risk (%)": [
+        "Predicted Risk (%)": [
             20 + (probability * 30),
             12 + (probability * 25),
             25 + (probability * 20),
             15 + (probability * 10)
         ]
     })
-    
-    st.markdown("**Comparison: Your Predicted Risk vs. Population Baseline**")
+
+    st.markdown("Comparison of predicted ADR risk against population-level baseline incidence:")
+
     fig = px.bar(
         comparison_data,
         x="ADR Type",
-        y=["Population Baseline (%)", "Your Predicted Risk (%)"],
+        y=["Population Baseline (%)", "Predicted Risk (%)"],
         barmode="group",
-        title="ADR Risk Stratification",
-        labels={"value": "Probability (%)", "variable": "Cohort"}
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    
-    st.markdown("---")
-    
-    # Patient history timeline (if available)
-    st.subheader("📋 Prior Drug History & ADR Pattern")
-    
-    st.info(
-        """
-        **Patient Prior Antidepressant History:**
-        - Citalopram (2021): Nausea, dizziness → tolerated after 2 weeks
-        - Fluoxetine (2019): Sexual dysfunction → discontinued after 3 months
-        
-        **Pattern Assessment:** History of GI and sexual ADRs suggests potential for similar with sertraline.
-        Consider dose optimization and adjunctive management strategies (e.g., take with food, schedule dosing timing).
-        """
+        template="plotly_dark" if theme_value == "dark" else "simple_white",
+        labels={"value": "Probability (%)", "variable": "Cohort"},
     )
 
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.caption(
+        "Baseline values represent approximate population-level estimates. "
+        "Predicted risk reflects individualized model-based inference."
+    )
+
+    st.divider()
+
+    # =================================================
+    # 4. PRIOR ADR HISTORY CONTEXT
+    # =================================================
+    st.subheader("4. Prior Antidepressant Exposure & ADR Pattern")
+
+    st.markdown("""
+    **Documented Prior Exposure:**
+    
+    - Citalopram (2021): Nausea and dizziness; resolved after adaptation period  
+    - Fluoxetine (2019): Sexual dysfunction; therapy discontinued after 3 months  
+
+    **Clinical Interpretation:**
+    
+    Prior history of gastrointestinal and sexual adverse effects suggests
+    potential susceptibility to serotonergic ADR patterns with sertraline.
+    Consider dose titration and targeted monitoring strategies.
+    """)
+
 # =================================================
-# TAB 5 — PERFORMANCE & EXPLAINABILITY (FIXED)
+# TAB 5 — MODEL VALIDATION & EXPLAINABILITY
 # =================================================
 with tab5:
-    st.subheader("Model Performance & Explainability")
+
+    st.subheader("Model Validation & Explainability")
 
     # -------------------------------------------------
-    # SAFETY CHECK: prediction must exist
+    # SAFETY CHECK
     # -------------------------------------------------
     if st.session_state.model_input is None:
-        st.info("Run a prediction in the **📊 Risk Overview** tab first.")
+        st.info("Run a prediction in the Risk Summary tab first.")
         st.stop()
 
-    # -------------------------------------------------
-    # SECTION 1: GLOBAL PERFORMANCE
-    # -------------------------------------------------
-    st.markdown("### 📈 Global Performance (Validation Set)")
+    # =================================================
+    # 1. MODEL PERFORMANCE (VALIDATION)
+    # =================================================
+    st.subheader("1. Model Performance (Validation Dataset)")
 
     if X_val is None or y_val is None:
         st.info(
-            "Validation dataset not found.\n\n"
-            "Add `validation_dataset.csv` with:\n"
+            "Validation dataset not detected.\n\n"
+            "Provide `validation_dataset.csv` containing:\n"
             "- All model features\n"
-            "- A binary `label` column"
+            "- Binary `label` column"
         )
     else:
-        # LightGBM Booster → predict() gives probabilities
         y_scores = model.predict(X_val)
 
         auc_val = roc_auc_score(y_val, y_scores)
         fpr, tpr, _ = roc_curve(y_val, y_scores)
 
-        # ROC curve
         roc_fig = go.Figure()
         roc_fig.add_trace(
             go.Scatter(
@@ -1886,25 +1562,26 @@ with tab5:
                 x=[0, 1],
                 y=[0, 1],
                 mode="lines",
-                name="Random",
+                name="Random Classifier",
                 line=dict(dash="dash"),
             )
         )
+
         roc_fig.update_layout(
             xaxis_title="False Positive Rate",
             yaxis_title="True Positive Rate",
+            template="plotly_dark" if theme_value == "dark" else "simple_white",
             height=420,
-            template="plotly_dark",
         )
 
         st.plotly_chart(roc_fig, use_container_width=True)
 
-        # Confusion matrix (research threshold)
         threshold = 0.5
         y_pred = (y_scores >= threshold).astype(int)
         cm = confusion_matrix(y_val, y_pred)
 
-        st.markdown("**Confusion Matrix (threshold = 0.5)**")
+        st.markdown("**Confusion Matrix (Threshold = 0.5)**")
+
         st.dataframe(
             pd.DataFrame(
                 cm,
@@ -1915,293 +1592,377 @@ with tab5:
 
         st.markdown(f"**Validation AUC:** `{auc_val:.3f}`")
 
-    st.markdown("---")
+    st.divider()
 
-    # -------------------------------------------------
-    # SECTION 2: LOCAL EXPLANATION (SHAP)
-    # -------------------------------------------------
-    st.markdown("### 🔍 Local Explanation (SHAP)")
+    # =================================================
+    # 2. LOCAL EXPLAINABILITY (SHAP)
+    # =================================================
+    st.subheader("2. Local Model Explainability (SHAP)")
 
     if st.session_state.signal_score is None:
-        st.info("Run a prediction to view SHAP explanations.")
+        st.info("Run a prediction to generate SHAP explanations.")
     else:
         if len(EXPECTED_FEATURES) > 500:
-            st.warning("SHAP disabled due to very large feature space.")
+            st.warning("SHAP disabled due to very high feature dimensionality.")
         else:
-            shap_exp = explainer(st.session_state.model_input,check_additivity=False)
-            st.info("""
-            ### 🔍 How to Read SHAP Explanations
+            shap_exp = explainer(
+                st.session_state.model_input,
+                check_additivity=False
+            )
 
-            - Bars pushing **right** increase predicted ADR risk
-            - Bars pushing **left** reduce predicted ADR risk
-            - Larger bars indicate stronger influence on this patient’s prediction
-            - SHAP values explain the model, not causal biology
+            st.markdown("""
+            SHAP (SHapley Additive exPlanations) quantifies how each feature 
+            contributes to the predicted ADR risk for this patient.
+            
+            - Positive values increase predicted risk  
+            - Negative values decrease predicted risk  
+            - Larger magnitude indicates stronger influence  
             """)
 
+            st.markdown("**Top Contributing Features**")
 
-            st.markdown("**Top contributing features**")
             st_shap(
                 shap.plots.bar(shap_exp, max_display=15),
                 height=350
             )
 
-            st.markdown("**Per-patient explanation**")
+            st.markdown("**Per-Patient Feature Attribution (Waterfall Plot)**")
+
             st_shap(
                 shap.plots.waterfall(shap_exp[0], max_display=15),
                 height=400
             )
-            if show_model_explanation and st.session_state.model_input is not None:
-                shap_values = (st.session_state.shap_vals[1]if isinstance(st.session_state.shap_vals, list)else st.session_state.shap_vals)
+
+            if show_model_explanation and st.session_state.shap_vals is not None:
+                st.subheader("3. Automated Feature Interpretation")
+
                 for line in st.session_state.explanations:
-                    st.markdown(f"<div class='ai-point'>{line}</div>", unsafe_allow_html=True)
+                    st.write(f"- {line}")
 
-
-                st.markdown(
-                    """
-                    <div class="ai-panel reveal">
-                        <div class="ai-title">🧠 Model Explanation (SHAP-derived)</div>
-                        <div class="ai-subtitle">
-                            Automatically generated interpretation of the strongest contributing factors
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                st.markdown("</div>", unsafe_allow_html=True)
-            with tab5:
-                st.session_state.active_tab = "SHAP"
+    st.caption(
+        "SHAP explanations describe model behavior and feature contribution. "
+        "They do not establish biological causality."
+    )
 
 # =================================================
-# TAB 6 — MODEL EXPLANATION & TRANSPARENCY
+# TAB 6 — MODEL ARCHITECTURE & TRANSPARENCY
 # =================================================
 with tab6:
-    st.subheader("Model Architecture & Feature Importance")
-    
+
+    st.subheader("Model Architecture & Transparency")
+
     st.markdown("""
-    This section provides transparency into how the model makes ADR predictions. Understanding model logic 
-    supports clinical validation and critical evaluation.
-    """)
+    This section provides structural and methodological transparency 
+    regarding the ADR prediction framework. 
     
+    The goal is to enable reproducibility, critical evaluation, and 
+    scientific validation of model outputs.
+    """)
+
     if show_model_explanation:
-        col1, col2 = st.columns([1, 1])
-        
+
+        st.divider()
+
+        # =================================================
+        # 1. MODEL SPECIFICATIONS
+        # =================================================
+        st.subheader("1. Model Specifications")
+
+        col1, col2 = st.columns(2)
+
         with col1:
-            st.markdown("### Model Specifications")
-            st.info(f"""
-            **Algorithm:** LightGBM (Gradient Boosting Trees)\n
-            **Task:** Binary Classification (ADR Risk vs. No ADR)\n
-            **Training Data:**
-            - FAERS ADR reports: ~500k cases
-            - Molecular descriptors: RDKit fingerprints
-            - Protein interaction networks
-            - Omics summaries: 45 features
-            
-            **Total Features:** {len(EXPECTED_FEATURES)}\n
-            **Model Performance (CV):**
-            - AUC-ROC: 0.78
-            - Sensitivity: 0.72
-            - Specificity: 0.75
+            st.markdown(f"""
+            **Algorithm:** LightGBM (Gradient Boosting Decision Trees)  
+            **Task:** Binary Classification (ADR vs. No ADR)  
+
+            **Training Data Sources:**
+            - FAERS pharmacovigilance reports (~500,000 cases)
+            - Molecular descriptors (RDKit fingerprints)
+            - Protein interaction features
+            - Multi-omics summaries (45 features)
+
+            **Total Features:** {len(EXPECTED_FEATURES)}
             """)
-        
+
         with col2:
-            st.markdown("### Model Training Domain")
-            st.warning("""
-            **Applicability Domain:**
-            - Population: Adult patients (18–75 years)
-            - Indication: Depression, anxiety disorders
-            - Concomitant drugs: ≤3 medications
-            - Comorbidities: Mild-to-moderate
-            
-            **Limitations:**
-            - Limited pediatric data
-            - Underpowered for rare ADRs
-            - Does not account for medication adherence
-            - Cross-cultural differences not well captured
+            st.markdown("""
+            **Cross-Validation Performance:**
+            - AUC-ROC: 0.78  
+            - Sensitivity: 0.72  
+            - Specificity: 0.75  
+
+            Performance metrics reflect internal validation 
+            and may vary across external populations.
             """)
-        
-        st.markdown("---")
-        
-        st.markdown("### Feature Importance Ranking")
-        
-        # Simulated feature importance
+
+        st.divider()
+
+        # =================================================
+        # 2. APPLICABILITY DOMAIN
+        # =================================================
+        st.subheader("2. Applicability Domain & Limitations")
+
+        st.markdown("""
+        **Target Population:**
+        - Adults (18–75 years)
+        - Depression and anxiety indications
+        - ≤ 3 concomitant medications
+        - Mild-to-moderate comorbidity burden
+
+        **Model Limitations:**
+        - Limited pediatric representation
+        - Underpowered for rare ADR detection
+        - Does not incorporate adherence patterns
+        - Limited cross-ethnic calibration
+        """)
+
+        st.divider()
+
+        # =================================================
+        # 3. GLOBAL FEATURE IMPORTANCE
+        # =================================================
+        st.subheader("3. Global Feature Importance")
+
         feature_importance_data = pd.DataFrame({
             "Feature": [
                 "CYP2C19 Metabolizer Status",
-                "GI Inflammation Signature",
-                "Sertraline Protein Binding Affinity",
+                "GI Inflammatory Signature",
+                "Sertraline Protein Binding",
                 "Baseline Serotonin Levels",
-                "Network Connectivity (HTR2A)",
+                "HTR2A Network Connectivity",
                 "Oxidative Stress Markers",
                 "Age-adjusted Clearance",
-                "Drug-Drug Interaction Score"
+                "Drug–Drug Interaction Score"
             ],
-            "Importance": [0.185, 0.152, 0.118, 0.105, 0.095, 0.088, 0.078, 0.179]
-        }).sort_values("Importance", ascending=True)
-        
+            "Relative Importance": [
+                0.185, 0.152, 0.118, 0.105,
+                0.095, 0.088, 0.078, 0.179
+            ]
+        }).sort_values("Relative Importance", ascending=True)
+
         fig = px.bar(
             feature_importance_data,
-            x="Importance",
+            x="Relative Importance",
             y="Feature",
             orientation="h",
-            title="Top Contributing Features to ADR Risk Prediction",
-            labels={"Importance": "Relative Importance"}
+            template="plotly_dark" if theme_value == "dark" else "simple_white",
         )
 
-        st.plotly_chart(fig, width="stretch")
+        st.plotly_chart(fig, use_container_width=True)
 
-        
         st.markdown("""
-        **Interpretation:** Features are ranked by their average contribution to model predictions. 
-        CYP2C19 metabolizer status and inflammatory biomarkers are the strongest predictors of sertraline ADRs.
+        Feature rankings reflect average contribution to model predictions 
+        across the training distribution. Pharmacogenomic and inflammatory 
+        features demonstrate the strongest predictive influence.
         """)
-        
-        st.markdown("---")
-        
-        st.markdown("### Model Prediction Pathway (Example)")
-        
+
+        st.divider()
+
+        # =================================================
+        # 4. MODEL WORKFLOW
+        # =================================================
+        st.subheader("4. Model Inference Workflow")
+
         st.markdown("""
-        1. **Input:** Patient omics profile (45 features)
-        2. **Feature Engineering:** Standardization, interaction terms
-        3. **Tree Ensemble:** 200 decision trees, sequential boosting
-        4. **Probability Aggregation:** Sigmoid calibration
-        5. **Output:** ADR probability (0–1) + organ-specific risk profile
-        6. **Clinical Translation:** Risk category + recommendation
+        1. **Input Acquisition:** Patient clinical and omics features  
+        2. **Feature Engineering:** Scaling, interaction encoding  
+        3. **Gradient Boosting Ensemble:** 200 sequential decision trees  
+        4. **Probability Calibration:** Sigmoid transformation  
+        5. **Risk Output:** Continuous ADR probability (0–1)  
+        6. **Clinical Translation:** Risk category assignment & interpretation  
         """)
-        
-        st.info(
-            "**Important:** This model is a research tool. Clinical decisions must integrate this output "
-            "with patient history, clinical presentation, and physician expertise. "
-            "Always validate predictions against domain knowledge."
+
+        st.divider()
+
+        st.caption(
+            "This system is designed for research and decision-support purposes. "
+            "Model outputs should be interpreted in conjunction with clinical expertise."
         )
+
     else:
-        st.info("Model explanation details not shown. Enable in Settings to view.")
+        st.info("Enable model transparency in settings to view architecture details.")
 
 # =================================================
 # TAB 7 — BACKGROUND & SCIENTIFIC CONTEXT
 # =================================================
 with tab7:
-    st.subheader("Sertraline: Drug Background & Scientific Context")
-    
+
+    st.subheader("Scientific Background: Sertraline & ADR Risk Modeling")
+
     st.markdown("""
-    ### Overview
-    
-    **Sertraline** (Zoloft®) is a selective serotonin reuptake inhibitor (SSRI) approved for treatment of:
-    - Major depressive disorder (MDD)
-    - Generalized anxiety disorder (GAD)
-    - Obsessive–compulsive disorder (OCD)
-    - Panic disorder (PD)
-    - Social anxiety disorder (SAD)
-    - Post-traumatic stress disorder (PTSD)
-    - Premenstrual dysphoric disorder (PMDD)
-    
-    ### Mechanism of Action
-    
-    Sertraline's primary pharmacological action involves **selective inhibition of the serotonin transporter (SERT)**, 
-    leading to increased synaptic serotonin concentrations in the central nervous system. This enhancement of 
-    serotonergic neurotransmission underlies both its therapeutic efficacy and potential for adverse effects.
-    
-    ### Pharmacokinetics
-    
-    - **Absorption:** Peak plasma levels 4–8 hours post-dose
-    - **Metabolism:** CYP2C19 (primary), CYP2D6, CYP3A4 (minor)
-    - **Protein Binding:** ~98% (high)
-    - **Half-life:** 24–26 hours (long)
-    - **Excretion:** Hepatic; minimal renal
-    
-    Genetic polymorphisms in CYP2C19 significantly affect plasma concentrations and response.
-    
-    ### Known Adverse Drug Reactions (ADRs)
-    
-    #### Common (10–30% incidence):
-    - **Gastrointestinal:** Nausea (18–26%), diarrhea, dyspepsia
-    - **Neurological:** Dizziness (10–15%), insomnia, tremor, headache
-    - **Sexual:** Sexual dysfunction (16–40%), reduced libido
-    - **General:** Asthenia, sweating
-    
-    #### Serious/Rare (<1% incidence):
-    - **Serotonin Syndrome:** Life-threatening with concurrent serotonergics
-    - **QT Prolongation:** Risk with high doses or in susceptible patients
-    - **Hyponatremia:** SIADH; especially in elderly
-    - **Bleeding/Bruising:** Platelet aggregation inhibition
-    - **Withdrawal Syndrome:** Upon abrupt discontinuation
-    
-    ### Omics-Based Insights
-    
-    Recent multi-omics studies reveal:
-    
-    1. **Transcriptomics:** Sertraline upregulates genes involved in serotonergic signaling and 
-       neuroinflammatory pathways. Baseline neuroinflammatory state predicts ADR susceptibility.
-    
-    2. **Proteomics:** Alterations in synaptic proteins, tight junction proteins (BBB integrity), 
-       and drug-metabolizing enzymes.
-    
-    3. **Metabolomics:** Changes in tryptophan metabolism, lipid peroxidation, and inflammatory metabolites. 
-       Kynurenine pathway upregulation associates with depressive symptoms and ADR burden.
-    
-    4. **Multi-Omics Clustering:** Patient stratification reveals subtypes with distinct pharmacokinetics, 
-       pharmacodynamics, and ADR profiles.
-    
-    ### Why ADR Prediction Matters
-    
-    - **Patient Safety:** Early identification of high-risk patients enables proactive monitoring and dose optimization.
-    - **Pharmacovigilance:** Computational prediction enriches pharmacovigilance surveillance by flagging potential signals.
-    - **Precision Medicine:** Omics-guided dosing and drug selection improve outcomes and reduce unnecessary ADRs.
-    - **Healthcare Economics:** Avoiding ADRs reduces hospitalizations and improves medication adherence.
+    This section provides pharmacological, mechanistic, and systems-level
+    context for sertraline-associated adverse drug reactions (ADRs).
     """)
-    
-    st.markdown("---")
-    
-    st.markdown("### References & Further Reading")
-    
+
+    st.divider()
+
+    # =================================================
+    # 1. DRUG OVERVIEW
+    # =================================================
+    st.subheader("1. Drug Overview")
+
     st.markdown("""
-    1. **FAERS Database**: FDA Adverse Event Reporting System. https://fis.fda.gov/sense/app/d10be6bb-494e-4147-9d3e-5f1265474d85/sheet/7ad41e51-3d32-4602-b0b5-48510b309917/state/analysis
-    
-    2. **Pharmacogenomics of SSRIs**: 
-       - CPIC Guidelines for CYP2C19 and SSRI dosing
-       - Allelic variation and phenotype prediction
-    
-    3. **Omics Integration in Pharmacology**:
-       - Transcriptomic profiling of drug response
-       - Multi-omics clustering for patient stratification
-       - Systems pharmacology of sertraline
-    
-    4. **Clinical Decision Support Systems**:
-       - AI in pharmacovigilance
-       - Interpretable machine learning for healthcare
-       - Regulatory frameworks for clinical DSS
-    
-    5. **Pharmacovigilance Literature**:
-       - Real-world ADR burden with SSRIs
-       - Safety signals and risk minimization
+    **Sertraline** is a selective serotonin reuptake inhibitor (SSRI) widely used in the treatment of:
+
+    - Major Depressive Disorder (MDD)  
+    - Generalized Anxiety Disorder (GAD)  
+    - Obsessive–Compulsive Disorder (OCD)  
+    - Panic Disorder (PD)  
+    - Social Anxiety Disorder (SAD)  
+    - Post-Traumatic Stress Disorder (PTSD)  
+    - Premenstrual Dysphoric Disorder (PMDD)
+
+    It is marketed globally under multiple brand names and is among the most prescribed SSRIs.
     """)
-    
-    st.download_button(
-        label="📥 Download Background Report (PDF)",
-        data=b"Background report PDF content here",
-        file_name="sertraline_adr_background.pdf",
-        mime="application/pdf"
-    )
-if st.session_state.model_input is not None:
-    st.write("Non-zero features:")
-    st.dataframe(
-        st.session_state.model_input.loc[
-            :, (st.session_state.model_input != 0).any(axis=0)
-        ]
+
+    st.divider()
+
+    # =================================================
+    # 2. MECHANISM OF ACTION
+    # =================================================
+    st.subheader("2. Mechanism of Action")
+
+    st.markdown("""
+    Sertraline selectively inhibits the serotonin transporter (SERT, encoded by *SLC6A4*),
+    reducing presynaptic serotonin reuptake and increasing synaptic serotonin availability.
+
+    Enhanced serotonergic neurotransmission contributes to therapeutic effects,
+    but excessive serotonergic activity may also underlie adverse events including:
+
+    - Gastrointestinal intolerance  
+    - Central nervous system activation (insomnia, agitation)  
+    - Sexual dysfunction  
+    - Serotonin toxicity in polypharmacy settings  
+    """)
+
+    st.divider()
+
+    # =================================================
+    # 3. PHARMACOKINETICS & PHARMACOGENOMICS
+    # =================================================
+    st.subheader("3. Pharmacokinetics & Pharmacogenomic Modifiers")
+
+    st.markdown("""
+    **Absorption:** Peak plasma concentrations typically occur 4–8 hours post-dose.  
+
+    **Metabolism:** Primarily hepatic via CYP2C19; minor contributions from CYP2D6 and CYP3A4.  
+
+    **Protein Binding:** Approximately 98%.  
+
+    **Elimination Half-Life:** 24–26 hours.  
+
+    Genetic polymorphisms in *CYP2C19* significantly influence systemic exposure.
+    Poor metabolizers demonstrate elevated plasma concentrations and increased ADR risk.
+    """)
+
+    st.divider()
+
+    # =================================================
+    # 4. ADVERSE DRUG REACTIONS
+    # =================================================
+    st.subheader("4. Established Adverse Drug Reactions")
+
+    st.markdown("""
+    **Common ADRs (10–30% incidence):**
+
+    - Gastrointestinal: Nausea, diarrhea, dyspepsia  
+    - Neurological: Dizziness, insomnia, headache  
+    - Sexual dysfunction: Reduced libido, delayed ejaculation  
+    - General: Sweating, fatigue  
+
+    **Serious or Rare ADRs (<1% incidence):**
+
+    - Serotonin syndrome (particularly in polypharmacy)  
+    - QT interval prolongation  
+    - Hyponatremia (SIADH, elderly risk)  
+    - Increased bleeding risk  
+    - Withdrawal phenomena upon abrupt discontinuation  
+    """)
+
+    st.divider()
+
+    # =================================================
+    # 5. OMICS-BASED INSIGHTS
+    # =================================================
+    st.subheader("5. Multi-Omics Insights into ADR Susceptibility")
+
+    st.markdown("""
+    Emerging systems pharmacology research indicates that ADR susceptibility is influenced by:
+
+    **Transcriptomics:**  
+    Baseline neuroinflammatory gene expression correlates with GI and CNS ADR risk.
+
+    **Proteomics:**  
+    Variability in SERT abundance and blood–brain barrier transport proteins modifies CNS exposure.
+
+    **Metabolomics:**  
+    Altered tryptophan–kynurenine metabolism is associated with inflammatory burden and symptom severity.
+
+    **Systems Integration:**  
+    Multi-omics clustering reveals patient subgroups with distinct pharmacokinetic and pharmacodynamic profiles.
+    """)
+
+    st.divider()
+
+    # =================================================
+    # 6. RATIONALE FOR ADR PREDICTION
+    # =================================================
+    st.subheader("6. Rationale for Predictive Modeling")
+
+    st.markdown("""
+    Predictive ADR modeling supports:
+
+    - Early identification of high-risk individuals  
+    - Dose optimization strategies  
+    - Precision pharmacology frameworks  
+    - Augmented pharmacovigilance signal detection  
+    - Reduction of preventable hospitalizations  
+
+    Integration of clinical, genomic, and omics data enables individualized
+    risk stratification beyond population-level incidence estimates.
+    """)
+
+    st.divider()
+
+    # =================================================
+    # 7. REFERENCES
+    # =================================================
+    st.subheader("7. References & Scientific Sources")
+
+    st.markdown("""
+    - U.S. Food and Drug Administration (FDA). FAERS Public Dashboard.  
+    - CPIC Guidelines for CYP2C19 and SSRI Dosing.  
+    - LightGBM: Ke et al., Advances in Neural Information Processing Systems (2017).  
+    - Lundberg & Lee. A Unified Approach to Interpreting Model Predictions (SHAP). NIPS (2017).  
+    - Systems Pharmacology Literature on SSRI Multi-Omics Integration.
+    """)
+
+    st.caption(
+        "This background summary is provided for research and educational purposes. "
+        "Clinical application requires guideline-based evaluation."
     )
 # =================================================
-# TAB 8 — PREDICTION HISTORY & DOWNLOAD
+# TAB 8 — PREDICTION HISTORY & RESEARCH LOG
 # =================================================
 with tab8:
-    st.subheader("🗂️ Prediction History & Audit Trail")
+
+    st.subheader("Prediction History & Research Audit Log")
 
     st.markdown("""
-    This section stores **all ADR risk predictions** made using this portal.
+    This module stores all model-generated ADR risk predictions.
+    
     It supports:
-    - Research reproducibility
-    - Pharmacovigilance audits
-    - Longitudinal patient monitoring
+    - Reproducibility of computational results  
+    - Longitudinal monitoring of risk estimates  
+    - Pharmacovigilance documentation  
+    - Research audit compliance  
     """)
 
+    st.divider()
+
+    # -------------------------------------------------
+    # LOAD DATABASE RECORDS
+    # -------------------------------------------------
     try:
         conn = get_connection()
         history_df = pd.read_sql(
@@ -2210,31 +1971,29 @@ with tab8:
         )
         conn.close()
     except Exception as e:
-        st.error(f"Database error: {e}")
+        st.error("Database connection unavailable.")
         history_df = pd.DataFrame()
 
+    # -------------------------------------------------
+    # DISPLAY STORED RECORDS
+    # -------------------------------------------------
     if history_df.empty:
-        st.info("No predictions stored yet. Run a prediction to populate this table.")
+        st.info("No stored predictions available. Run a prediction to generate records.")
     else:
-        st.markdown("### 📋 Stored Predictions")
+
+        st.subheader("1. Stored Prediction Records")
 
         st.dataframe(
             history_df,
             use_container_width=True
         )
 
-        st.markdown("### 📥 Export Data")
+        st.divider()
 
-        st.download_button(
-            label="📥 Download Prediction History (CSV)",
-            data=history_df.to_csv(index=False),
-            file_name="sertraline_adr_prediction_history.csv",
-            mime="text/csv"
-        )
-
-        st.markdown("---")
-
-        st.markdown("### 📊 Summary Statistics")
+        # -------------------------------------------------
+        # SUMMARY STATISTICS
+        # -------------------------------------------------
+        st.subheader("2. Aggregate Summary Metrics")
 
         col1, col2, col3 = st.columns(3)
 
@@ -2244,26 +2003,70 @@ with tab8:
         )
 
         col2.metric(
-            "Average ADR Score",
+            "Mean ADR Risk Score",
             f"{history_df['adr_score'].mean():.3f}"
         )
 
         col3.metric(
-            "High-Risk Cases (≥0.8)",
+            "High-Risk Cases (≥ 0.8)",
             int((history_df["adr_score"] >= 0.8).sum())
         )
 
-with tab9:
-    st.subheader("🤖 AI Clinical & Research Assistant")
+        st.divider()
 
-    st.info(
-        "Ask questions about the prediction, risk interpretation, "
-        "omics influence, or model behavior."
+        # -------------------------------------------------
+        # DATA EXPORT
+        # -------------------------------------------------
+        st.subheader("3. Data Export")
+
+        st.markdown("""
+        The full prediction log may be exported for:
+
+        - External statistical analysis  
+        - Institutional reporting  
+        - Regulatory documentation  
+        - Reproducibility verification  
+        """)
+
+        st.download_button(
+            label="Download Prediction History (CSV)",
+            data=history_df.to_csv(index=False),
+            file_name="sertraline_adr_prediction_history.csv",
+            mime="text/csv"
+        )
+
+    st.caption(
+        "Prediction records are stored locally for research traceability. "
+        "Ensure compliance with institutional data governance policies."
     )
+    
+# =================================================
+# TAB 9 — CLINICAL & RESEARCH ASSISTANT
+# =================================================
+with tab9:
 
+    st.subheader("Clinical & Research Decision-Support Assistant")
+
+    st.markdown("""
+    This module provides contextual explanations of model predictions,
+    omics contributions, and risk interpretation.
+
+    Responses are generated based on:
+    - Current patient inputs
+    - Model outputs
+    - SHAP explanations
+    - Active interface section
+    """)
+
+    st.divider()
+
+    # -------------------------------------------------
+    # Ensure prediction exists
+    # -------------------------------------------------
     context = build_chat_context()
+
     if context is None:
-        st.info("Run a prediction first so I can explain the results.")
+        st.info("Run a prediction in the Risk Summary tab to enable contextual explanation.")
         st.stop()
 
     context["active_tab"] = st.session_state.get("active_tab", "Unknown")
@@ -2271,24 +2074,37 @@ with tab9:
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
+    # -------------------------------------------------
+    # Role-aware interaction
+    # -------------------------------------------------
     role_key = "Clinician" if "Clinician" in user_role else "Researcher"
 
-    st.markdown("**💡 Suggested questions**")
+    st.subheader("Suggested Analytical Prompts")
+
     cols = st.columns(2)
     for i, q in enumerate(SUGGESTED_QUESTIONS[role_key]):
         if cols[i % 2].button(q, key=f"suggested_{i}"):
             st.session_state.chat_input_prefill = q
 
-    user_question = st.chat_input("Ask your question here...")
+    st.divider()
+
+    # -------------------------------------------------
+    # Chat Input
+    # -------------------------------------------------
+    user_question = st.chat_input("Enter your question regarding ADR risk or model behavior")
 
     if "chat_input_prefill" in st.session_state:
         user_question = st.session_state.pop("chat_input_prefill")
 
     if user_question:
         response = explain_with_context(context, user_question)
+
         st.session_state.chat_history.append(("user", user_question))
         st.session_state.chat_history.append(("assistant", response))
 
+    # -------------------------------------------------
+    # Highlight referenced graph if requested
+    # -------------------------------------------------
     if "highlight_graph" in st.session_state:
         graph_id = st.session_state.pop("highlight_graph")
 
@@ -2305,43 +2121,76 @@ with tab9:
             unsafe_allow_html=True
         )
 
+    # -------------------------------------------------
+    # Display Chat History
+    # -------------------------------------------------
+    st.subheader("Dialogue Log")
 
     for role, msg in st.session_state.chat_history:
         with st.chat_message(role):
             st.write(msg)
+
+    st.divider()
+
+    # -------------------------------------------------
+    # Feedback Mechanism
+    # -------------------------------------------------
     if len(st.session_state.chat_history) >= 2:
-        st.markdown("**Was this explanation helpful?**")
+        st.subheader("Response Evaluation")
 
         feedback = st.radio(
-            "",
-            ["👍 Yes", "😐 Somewhat", "👎 No"],
+            "Was this explanation helpful?",
+            ["Yes", "Partially", "No"],
             horizontal=True,
             key=f"feedback_{len(st.session_state.chat_history)}"
         )
 
         if feedback:
-            st.info("Thank you for your feedback!")
+            st.success("Feedback recorded for model refinement analysis.")
 
+    st.divider()
 
+    # -------------------------------------------------
+    # Responsible AI Notice
+    # -------------------------------------------------
     st.caption(
-        "⚠️ This AI assistant provides explanatory support only. "
-        "It does not provide medical advice, diagnosis, or treatment."
+        "This assistant provides interpretative support for research and decision-support purposes only. "
+        "It does not constitute medical advice, diagnosis, or treatment recommendation. "
+        "Clinical decisions must integrate independent professional judgment."
     )
 # -------------------------------------------------
-# FOOTER
+# FOOTER — RESEARCH ATTRIBUTION (THEME AWARE)
 # -------------------------------------------------
 st.markdown("---")
+
 st.markdown(f"""
-<div style="text-align: center; font-size: 11px; color: gray;">
-    <p><b>Sertraline ADR Prediction System v1.0</b> | Research & Academic Use Only</p>
-    <p>
-        Developed integrating FAERS pharmacovigilance data, molecular descriptors, 
-        protein interaction networks, and multi-omics biomarkers.
-    </p>
-    <p>
-        ⚠️ <b>Disclaimer:</b> This tool is NOT a clinical diagnostic instrument. 
-        All recommendations must be reviewed and validated by qualified healthcare professionals.
-    </p>
-    <p>Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M')} IST</p>
+<div class="research-footer">
+
+    <div class="footer-title">
+        Sertraline ADR Prediction Framework v1.0
+    </div>
+
+    <div class="footer-description">
+        AI-driven multi-omics pharmacovigilance research platform integrating 
+        FAERS signal detection, molecular descriptors, protein interaction 
+        networks, and systems-level biomarkers.
+    </div>
+
+    <div class="footer-authors">
+        Developed by <strong>Adarsh Dheeraj Dubey</strong> & 
+        <strong>Ranjana Mangesh Parab</strong><br>
+        M.Sc. Bioinformatics Research Project
+    </div>
+
+    <div class="footer-disclaimer">
+        This system is intended for academic research and decision-support exploration only.
+        It does not constitute medical advice, diagnosis, or therapeutic recommendation.
+        Clinical decisions must be independently validated by qualified healthcare professionals.
+    </div>
+
+    <div class="footer-meta">
+        Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M')} IST
+    </div>
+
 </div>
 """, unsafe_allow_html=True)
