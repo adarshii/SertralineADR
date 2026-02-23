@@ -11,3 +11,4 @@ joblib
 scipy
 sqlalchemy
 fpdf2
+streamlit-shap
