@@ -20,13 +20,15 @@ from io import BytesIO
 st.set_page_config(
     page_title="ADR•X — Sertraline Signal Explorer",
     layout="wide",
-    initial_sidebar_state="expanded",
-    theme_value = "light",   # Change to "light" if needed
-    eli12 = False,
-    show_model_explanation = True,
-    user_role = "Researcher",
+    initial_sidebar_state="expanded"
 )
-
+# -------------------------------------------------
+# Global App Settings (Safe Variables)
+# -------------------------------------------------
+theme_value = "light"
+eli12 = False
+show_model_explanation = True
+user_role = "Researcher"
 # ---- CSS loader function FIRST ----
 def load_css(file_path: str):
     with open(file_path, "r", encoding="utf-8") as f:
