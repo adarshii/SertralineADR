@@ -657,7 +657,10 @@ def generate_pdf_report(
         "purposes only. Predictions reflect model behavior and are not clinical diagnoses."
     )
 
-    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+    pdf_bytes = pdf.output(dest="S")
+    # If returned as string (older fpdf), convert safely
+    if isinstance(pdf_bytes, str):
+        pdf_bytes = pdf_bytes.encode("latin-1")
     buffer = BytesIO(pdf_bytes)
     return buffer
 
