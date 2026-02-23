@@ -21,16 +21,12 @@ st.set_page_config(
     page_title="ADR•X — Sertraline Signal Explorer",
     layout="wide",
     initial_sidebar_state="expanded"
-)
-st.set_page_config(
-    # -------------------------------------------------
-    # Theme Control (Cloud-safe default)
-    # -------------------------------------------------
-    theme_value = "dark",   # Change to "light" if needed
+    theme_value = "light",   # Change to "light" if needed
     eli12 = False,
     show_model_explanation = True,
     user_role = "Researcher",
 )
+
 # ---- CSS loader function FIRST ----
 def load_css(file_path: str):
     with open(file_path, "r", encoding="utf-8") as f:
