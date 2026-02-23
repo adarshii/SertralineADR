@@ -71,7 +71,7 @@ def load_model():
     return joblib.load("models/sertraline_lightgbm_full.pkl")
 
 model = load_model()
-
+load_css("styles/styles.css")
 # -------------------------------------------------
 # Freeze expected feature schema (CRITICAL)
 # -------------------------------------------------
@@ -2167,9 +2167,6 @@ with tab9:
         "It does not constitute medical advice, diagnosis, or treatment recommendation. "
         "Clinical decisions must integrate independent professional judgment."
     )
-# -------------------------------------------------
-# FOOTER — RESEARCH ATTRIBUTION (THEME AWARE)
-# -------------------------------------------------
 st.markdown("---")
 
 st.markdown(f"""
