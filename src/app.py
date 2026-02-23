@@ -1282,17 +1282,21 @@ with tab3:
         "Clinical Interpretation": [v["meaning"] for v in transcriptomic_pathways.values()]
     }))
 
-    if show_raw_values:
-        st.markdown("**Raw Transcriptomic Features:**")
+   if show_raw_values:
+    st.markdown("**Raw Transcriptomic Features:**")
+
+    transcriptomic_cols = [
+        col for col in omics_df.columns
+        if "transcript" in col.lower()
+    ]
+
+    if transcriptomic_cols:
         st.dataframe(
-            omics_df[
-                ["transcriptomic_pathway_1", "transcriptomic_pathway_2"]
-            ].head(),
+            omics_df[transcriptomic_cols].head(),
             use_container_width=True
         )
-
-    st.divider()
-
+    else:
+        st.info("No transcriptomic-related columns detected in dataset.")
     # =================================================
     # 2. PROTEOMICS
     # =================================================
@@ -1329,16 +1333,31 @@ with tab3:
         "Clinical Interpretation": [v["clinical_meaning"] for v in metabolomic_data.values()]
     }))
 
-    if show_raw_values:
-        st.markdown("**Raw Metabolomic Features:**")
+if show_raw_values:
+    st.markdown("**Raw Metabolomic Features:**")
+
+    expected_cols = [
+        "metabolite_serotonin",
+        "metabolite_tryptophan"
+    ]
+
+    available_cols = [
+        col for col in expected_cols
+        if col in omics_df.columns
+    ]
+
+    if available_cols:
         st.dataframe(
-            omics_df[
-                ["metabolite_serotonin", "metabolite_tryptophan"]
-            ].head(),
+            omics_df[available_cols].head(),
             use_container_width=True
         )
+    else:
+        st.warning(
+            "Metabolomic columns not found in dataset. "
+            "Please verify omics CSV schema."
+        )
 
-    st.divider()
+st.divider()
 
     # =================================================
     # 4. MULTI-OMICS CLUSTERING
