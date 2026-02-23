@@ -1282,21 +1282,21 @@ with tab3:
         "Clinical Interpretation": [v["meaning"] for v in transcriptomic_pathways.values()]
     }))
 
-   if show_raw_values:
-    st.markdown("**Raw Transcriptomic Features:**")
+    if show_raw_values:
+        st.markdown("**Raw Transcriptomic Features:**")
 
-    transcriptomic_cols = [
-        col for col in omics_df.columns
-        if "transcript" in col.lower()
-    ]
+        transcriptomic_cols = [
+            col for col in omics_df.columns
+            if "transcript" in col.lower()
+        ]
 
-    if transcriptomic_cols:
-        st.dataframe(
-            omics_df[transcriptomic_cols].head(),
-            use_container_width=True
-        )
-    else:
-        st.info("No transcriptomic-related columns detected in dataset.")
+        if transcriptomic_cols:
+            st.dataframe(
+                omics_df[transcriptomic_cols].head(),
+                use_container_width=True
+            )
+        else:
+            st.info("No transcriptomic-related columns detected in dataset.")
     # =================================================
     # 2. PROTEOMICS
     # =================================================
