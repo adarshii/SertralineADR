@@ -1333,31 +1333,30 @@ with tab3:
         "Clinical Interpretation": [v["clinical_meaning"] for v in metabolomic_data.values()]
     }))
 
-if show_raw_values:
-    st.markdown("**Raw Metabolomic Features:**")
+    if show_raw_values:
+        st.markdown("**Raw Metabolomic Features:**")
+        expected_cols = [
+            "metabolite_serotonin",
+            "metabolite_tryptophan"
+        ]
 
-    expected_cols = [
-        "metabolite_serotonin",
-        "metabolite_tryptophan"
-    ]
+        available_cols = [
+            col for col in expected_cols
+            if col in omics_df.columns
+        ]
 
-    available_cols = [
-        col for col in expected_cols
-        if col in omics_df.columns
-    ]
+        if available_cols:
+            st.dataframe(
+                omics_df[available_cols].head(),
+                use_container_width=True
+            )
+        else:
+            st.warning(
+                "Metabolomic columns not found in dataset. "
+                "Please verify omics CSV schema."
+            )
 
-    if available_cols:
-        st.dataframe(
-            omics_df[available_cols].head(),
-            use_container_width=True
-        )
-    else:
-        st.warning(
-            "Metabolomic columns not found in dataset. "
-            "Please verify omics CSV schema."
-        )
-
-st.divider()
+    st.divider()
 
     # =================================================
     # 4. MULTI-OMICS CLUSTERING
