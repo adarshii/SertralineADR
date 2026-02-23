@@ -20,7 +20,7 @@ from io import BytesIO
 st.set_page_config(
     page_title="ADR•X — Sertraline Signal Explorer",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
     theme_value = "light",   # Change to "light" if needed
     eli12 = False,
     show_model_explanation = True,
