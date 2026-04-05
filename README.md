@@ -1,110 +1,122 @@
-# 🧬 AI-Driven Adverse Drug Reaction (ADR) Prediction System
+# 👨‍🔬 Adarsh Dheeraj Dubey
 
-An explainable, interactive clinical decision-support system for predicting
-**adverse drug reaction (ADR) risk** associated with **Sertraline**, integrating
-clinical, pharmacological, and multi-omics features using machine learning.
+**MSc Bioinformatics | AI in Pharmacovigilance | Computational Drug Safety**
 
-This system is designed for **research, educational, and pharmacovigilance use**
-and provides transparent risk interpretation through visual analytics and an
-AI-assisted explanation interface.
+I am a bioinformatics researcher focused on building **interpretable machine learning systems** for **adverse drug reaction (ADR) detection**, integrating **multi-omics data, pharmacovigilance signals, and explainable AI**.
+
+My work emphasizes **scientific rigor, reproducibility, and biological interpretability**, bridging the gap between **clinical pharmacology and computational intelligence**.
 
 ---
 
-## 🚀 Key Features
+## 🔬 Research Focus
 
-- **Machine-learning–based ADR risk prediction**
-- **ADR signal strength (%)** with risk categorization
-- **Model confidence estimation** (uncertainty awareness)
-- **Organ-specific risk visualization** (radar plots)
-- **Time-dependent ADR risk timeline**
-- **SHAP-based explainability** for feature contributions
-- **Interactive AI assistant** for clinicians & researchers
-- **“Explain this graph”** buttons with visual highlighting
-- **Hover-based contextual explanations**
-- **User feedback scoring** for explanation usefulness
-- **Streamlit Cloud deployment ready**
+- Adverse Drug Reaction (ADR) Signal Detection  
+- Pharmacovigilance (FAERS Data Analysis)  
+- Explainable AI in Healthcare (SHAP, Model Transparency)  
+- Multi-Omics Data Integration  
+- Drug Safety & Risk Modeling  
 
 ---
 
-## 🖥️ Live Demo
+## 🚀 Flagship Project
 
-👉 *(Add your Streamlit Cloud URL here once deployed)*  
-Example:  
-`https://your-app-name.streamlit.app`
+### 🧠 ADR•X — Sertraline Signal Explorer  
+**Interpretable Machine Learning Framework for ADR Signal Detection**
 
----
+- LightGBM-based ADR prediction system  
+- SHAP-driven explainability (global & local)  
+- Multi-omics proxy feature integration  
+- Streamlit-based interactive research dashboard  
+- Confidence-aware predictions  
 
-## 🧠 Intended Users
-
-- **Clinicians** – to interpret ADR risk and uncertainty  
-- **Researchers** – to explore model behavior and biological drivers  
-- **Pharmacovigilance analysts** – to support post-marketing safety analysis  
-
----
-
-## 📊 Methodology Overview
-
-### 🔹 Model
-- **Algorithm:** LightGBM classifier  
-- **Output:** ADR signal score (probability-based)  
-- **Risk interpretation:** Low / Moderate / High  
-
-### 🔹 Input Features
-- Clinical factors (age, dose, comorbidities)
-- Pharmacological variables
-- Multi-omics features (genomics / proteomics / pathway proxies)
-
-### 🔹 Explainability
-- **SHAP values** for global and local feature importance
-- Natural-language interpretation via AI assistant
-
-### 🔹 Confidence Estimation
-- Computed as distance from the model decision boundary (0.5)
-- Expressed as **High / Moderate / Low confidence**
+🔗 Repository: *(Add your repo link here)*  
 
 ---
 
-## 🤖 AI Clinical & Research Assistant
+## 💊 Additional Projects
 
-The integrated AI assistant provides **interpretive support**, not medical advice.
+### 🔬 Semaglutide ADR Analysis  
+- Investigating molecular and protein-level alterations  
+- Exploring ADR mechanisms using bioinformatics approaches  
 
-It can explain:
-- What the prediction means
-- How confident the model is
-- Why certain features increased risk
-- How to interpret SHAP plots
-- What each visualization represents
-
-The assistant is **context-aware**, responding differently depending on:
-- User role (Clinician vs Researcher)
-- Active visualization or tab
-- Model outputs for the current patient profile
+### 💉 Opioid Drug Explorer  
+- PubChem-inspired drug information platform  
+- Interactive chemical and pharmacological data visualization  
 
 ---
 
-## 📁 Project Structure
-Sertraline/
-├── app.py # Main Streamlit application
-├── requirements.txt # Python dependencies
-├── styles.css # Custom UI styling
-├── assets/ # Images, logos, screenshots
-│ └── logo.png
-├── models/ # Trained ML models
-│ └── model.pkl
-├── utils/ # Helper modules (optional refactor)
-│ ├── model_utils.py
-│ ├── confidence_utils.py
-│ ├── explain_utils.py
-│ ├── plot_utils.py
-│ └── db_utils.py
-├── data/ # Reference data (if any)
-└── README.md # Project documentation
+## 🧠 Technical Skills
 
+### Programming & Tools
+- Python, R, SQL  
+- Pandas, NumPy, RDKit  
 
-## ⚙️ Installation & Local Run
+### Machine Learning & AI
+- LightGBM, Scikit-learn  
+- SHAP (Explainable AI)  
+- Model Evaluation & Validation  
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+### Bioinformatics & Data
+- Pharmacovigilance (FAERS)  
+- Drug Databases (DrugBank, SIDER, UniProt)  
+- Multi-Omics Data Integration  
 
+### Development
+- Streamlit (Research Dashboards)  
+- Plotly (Scientific Visualization)  
+- Git & GitHub (Version Control)  
+
+---
+
+## 📊 Research Approach
+
+My work follows a **leakage-free, reproducible ML pipeline**:
+
+1. Data preprocessing and cleaning (FAERS)  
+2. Feature engineering (clinical + biological proxies)  
+3. Model training (LightGBM)  
+4. Explainability (SHAP analysis)  
+5. Interpretation (biological plausibility)  
+6. Deployment (Streamlit research interface)  
+
+---
+
+## 🌍 Research & Career Goals
+
+- Contribute to **computational pharmacovigilance systems**  
+- Develop **explainable AI models for drug safety**  
+- Work in **international research environments (DAAD, EMBL, Pharma R&D)**  
+- Advance **AI-driven precision medicine and drug risk prediction**  
+
+---
+
+## 📈 Current Work
+
+- Enhancing ADR prediction models with **multi-omics features**  
+- Integrating **molecular modeling insights into ADR risk systems**  
+- Building **publication-ready research dashboards**  
+
+---
+
+## 📚 Publications & Research (Upcoming)
+
+- ADR•X — Sertraline Signal Explorer *(Manuscript in preparation)*  
+
+---
+
+## 📫 Contact & Links
+
+- 🔗 LinkedIn: *(Add your link)*  
+- 💻 GitHub: https://github.com/adarshii  
+- 📧 Email: *(your email)*  
+
+---
+
+## ⚠️ Disclaimer
+
+All projects are intended for **research and educational purposes only**  
+and are **not for direct clinical decision-making**.
+
+---
+
+⭐ *This profile represents an ongoing effort to develop interpretable, responsible AI systems for healthcare and pharmacovigilance.*
