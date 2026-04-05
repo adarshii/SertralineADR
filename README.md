@@ -173,62 +173,41 @@ The ADR•X Streamlit portal provides three role-adaptive interfaces:
 ## 📁 Project Structure
 
 ```
-adrx-sertraline-signal-explorer/
+ADR-X-Sertraline-Signal-Explorer/
 │
-├── app/
-│   ├── main.py                    # Streamlit entry point
-│   ├── views/
-│   │   ├── clinician_view.py      # Simplified clinical interface
-│   │   ├── researcher_view.py     # Full SHAP and model analytics
-│   │   └── pv_analyst_view.py     # Signal triage and audit interface
-│   └── components/
-│       ├── ai_assistant.py        # Embedded AI interpretation assistant
-│       ├── shap_plots.py          # SHAP visualisation utilities
-│       └── report_generator.py    # PDF report export
+├── app/                        # Streamlit application
+│   └── main.py
 │
-├── model/
-│   ├── train.py                   # Model training pipeline
-│   ├── evaluate.py                # AUC-ROC, calibration, sensitivity
-│   ├── lgbm_baseline.joblib       # Serialised baseline model
-│   └── lgbm_weighted.joblib       # Serialised imbalance-adjusted model
+├── data/                       # Datasets
+│   ├── raw/
+│   ├── processed/
+│   └── external/
 │
-├── features/
-│   ├── feature_schema.json        # Frozen feature schema (v1.0)
-│   ├── engineering.py             # Feature construction pipeline
-│   ├── pharmacogenomics.py        # CYP2C19 / CYP2D6 / SLC6A4 proxies
-│   └── omics_proxies.py           # Multi-omics surrogate features
+├── models/                     # Trained models
+│   └── sertraline_lgbm.pkl
 │
-├── data/
-│   ├── faers_raw/                 # Raw FAERS quarterly files (not tracked)
-│   ├── processed/                 # Deduplicated, label-frozen dataset
-│   └── external/                  # DrugBank / SIDER reference files
+├── features/                   # Feature engineering
+│   └── feature_builder.py
 │
-├── explainability/
-│   ├── shap_global.py             # Global SHAP attribution pipeline
-│   ├── shap_local.py              # Per-patient waterfall generation
-│   └── plausibility_check.py     # Biological plausibility validation
+├── pipeline/                   # Core ML pipeline
+│   ├── train.py
+│   ├── validate.py
+│   └── preprocess.py
 │
-├── audit/
-│   └── adrx_audit.db             # SQLite audit log (auto-generated)
+├── utils/                      # Helper functions
+│   └── database.py
 │
-├── assets/
-│   ├── dashboard_main.png         # Interface screenshot
-│   ├── shap_global.png            # Global SHAP bar chart
-│   ├── shap_local.png             # Local SHAP waterfall
-│   └── methodology_workflow.png   # End-to-end pipeline diagram
+├── explainability/             # SHAP analysis
+│   └── shap_analysis.py
 │
-├── notebooks/
-│   ├── 01_data_preprocessing.ipynb
-│   ├── 02_feature_engineering.ipynb
-│   ├── 03_model_training.ipynb
-│   ├── 04_shap_analysis.ipynb
-│   └── 05_results_visualisation.ipynb
+├── assets/                     # Images (screenshots)
+│
+├── notebooks/                  # Research notebooks
 │
 ├── requirements.txt
-├── environment.yml
-├── .gitignore
+├── README.md
 ├── LICENSE
-└── README.md
+└── .gitignore
 ```
 
 ---
